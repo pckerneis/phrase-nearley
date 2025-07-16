@@ -1,0 +1,19 @@
+{
+  "name": "phrase-nearley",
+  "version": "0.1.0",
+  "description": "Natural language-like E2E testing DSL using Nearley",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha tests/**/*.test.js",
+    "build": "nearleyc src/grammar.ne -o src/grammar.js",
+    "pretest": "npm run build"
+  },
+  "dependencies": {
+    "moo": "^0.5.2",
+    "nearley": "^2.20.1"
+  },
+  "devDependencies": {
+    "assert": "^2.1.0",
+    "mocha": "^10.8.2"
+  }
+}
