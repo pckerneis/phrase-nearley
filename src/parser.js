@@ -1,16 +1,24 @@
 const nearley = require('nearley');
+const grammar = require('./grammar.js');
 
 class Parser {
     constructor() {
-        const grammar = require('./grammar.js');
+    }
+
+    reset() {
         this.parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
     }
 
     parse(input) {
+        this.reset();
         this.parser.feed(input);
         const results = this.parser.results;
-        this.parser = new nearley.Parser(nearley.Grammar.fromCompiled(require('./grammar.js')));
-        return results;
+
+        if (results.length === 0) {
+            throw new Error('No results found');
+        }
+
+        return results[0];
     }
 }
 

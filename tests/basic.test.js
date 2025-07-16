@@ -6,8 +6,6 @@ function parse(input) {
         const parser = new Parser();
         return parser.parse(input);
     } catch (error) {
-        console.error('Parse error for input:', input);
-        console.error('Error message:', error.message);
         throw error;
     }
 }
@@ -33,115 +31,115 @@ describe('DSL Grammar Tests', () => {
 
     describe('Element Actions', () => {
         it('should parse click with identifier containing digits', () => {
-            const result = parse('click button2')[0][0];
+            const result = parse('click button2')[0];
             assert.deepStrictEqual(result, {
                 type: 'click',
                 target: 'button2'
             });
         });
 
-//         it('should parse click with multi-identifier and digits', () => {
-//             const result = parse('click <Form2 Submit Button3>')[0][0];
-//             assert.deepStrictEqual(result, {
-//                 type: 'click',
-//                 target: 'Form2 Submit Button3'
-//             });
-//         });
+        it('should parse click with multi-identifier and digits', () => {
+            const result = parse('click <Form2 Submit Button3>')[0];
+            assert.deepStrictEqual(result, {
+                type: 'click',
+                target: 'Form2 Submit Button3'
+            });
+        });
 
-//         it('should fail on missing angle brackets', () => {
-//             assert.throws(() => parse('click Login Button'), Error);
-//         });
+        it('should fail on missing angle brackets', () => {
+            assert.throws(() => parse('click Login Button'), Error);
+        });
 
-//         it('should fail on mismatched angle brackets', () => {
-//             assert.throws(() => parse('click <Login Button'), Error);
-//             assert.throws(() => parse('click Login Button>'), Error);
-//         });
-//         it('should parse click with single identifier', () => {
-//             const result = parse('click foo')[0][0];
-//             assert.deepStrictEqual(result, {
-//                 type: 'click',
-//                 target: 'foo'
-//             });
-//         });
+        it('should fail on mismatched angle brackets', () => {
+            assert.throws(() => parse('click <Login Button'), Error);
+            assert.throws(() => parse('click Login Button>'), Error);
+        });
+        it('should parse click with single identifier', () => {
+            const result = parse('click foo')[0];
+            assert.deepStrictEqual(result, {
+                type: 'click',
+                target: 'foo'
+            });
+        });
 
-//         it('should parse click with multi-identifier', () => {
-//             const result = parse('click <Login Button>')[0][0];
-//             assert.deepStrictEqual(result, {
-//                 type: 'click',
-//                 target: 'Login Button'
-//             });
-//         });
+        it('should parse click with multi-identifier', () => {
+            const result = parse('click <Login Button>')[0];
+            assert.deepStrictEqual(result, {
+                type: 'click',
+                target: 'Login Button'
+            });
+        });
 
-//         it('should parse click with three-part identifier', () => {
-//             const result = parse('click <Submit Login Form>')[0][0];
-//             assert.deepStrictEqual(result, {
-//                 type: 'click',
-//                 target: 'Submit Login Form'
-//             });
-//         });
+        it('should parse click with three-part identifier', () => {
+            const result = parse('click <Submit Login Form>')[0];
+            assert.deepStrictEqual(result, {
+                type: 'click',
+                target: 'Submit Login Form'
+            });
+        });
 
-//         it('should fail on invalid identifier', () => {
-//             assert.throws(() => parse('click 123'), Error);
-//             assert.throws(() => parse('click <123>'), Error);
-//             assert.throws(() => parse('click <Login 123>'), Error);
-//         });
+        it('should fail on invalid identifier', () => {
+            assert.throws(() => parse('click 123'), Error);
+            assert.throws(() => parse('click <123>'), Error);
+            assert.throws(() => parse('click <Login 123>'), Error);
+        });
     });
 
-//     describe('String Actions', () => {
-//         it('should parse type with special characters', () => {
-//             const result = parse('type "hello@world.com"')[0][0];
-//             assert.deepStrictEqual(result, {
-//                 type: 'type',
-//                 text: 'hello@world.com'
-//             });
-//         });
+    describe('String Actions', () => {
+        it('should parse type with special characters', () => {
+            const result = parse('type "hello@world.com"')[0];
+            assert.deepStrictEqual(result, {
+                type: 'type',
+                text: 'hello@world.com'
+            });
+        });
 
-//         it('should parse type with numbers and punctuation', () => {
-//             const result = parse('type "123!@#$%^&*()"')[0][0];
-//             assert.deepStrictEqual(result, {
-//                 type: 'type',
-//                 text: '123!@#$%^&*()'
-//             });
-//         });
+        it('should parse type with numbers and punctuation', () => {
+            const result = parse('type "123!@#$%^&*()"')[0];
+            assert.deepStrictEqual(result, {
+                type: 'type',
+                text: '123!@#$%^&*()'
+            });
+        });
 
-//         it('should fail on unclosed string', () => {
-//             assert.throws(() => parse('type "unclosed'), Error);
-//         });
+        it('should fail on unclosed string', () => {
+            assert.throws(() => parse('type "unclosed'), Error);
+        });
 
-//         it('should fail on invalid string escapes', () => {
-//             assert.throws(() => parse('type "\\x"'), Error);
-//         });
-//         it('should parse type with string', () => {
-//             const result = parse('type "hello world"')[0][0];
-//             assert.deepStrictEqual(result, {
-//                 type: 'type',
-//                 text: 'hello world'
-//             });
-//         });
+        it('should fail on invalid string escapes', () => {
+            assert.throws(() => parse('type "\\x"'), Error);
+        });
+        it('should parse type with string', () => {
+            const result = parse('type "hello world"')[0];
+            assert.deepStrictEqual(result, {
+                type: 'type',
+                text: 'hello world'
+            });
+        });
 
-//         it('should parse type with empty string', () => {
-//             const result = parse('type ""')[0][0];
-//             assert.deepStrictEqual(result, {
-//                 type: 'type',
-//                 text: ''
-//             });
-//         });
+        it('should parse type with empty string', () => {
+            const result = parse('type ""')[0];
+            assert.deepStrictEqual(result, {
+                type: 'type',
+                text: ''
+            });
+        });
 
-//         it('should parse type with escaped quotes', () => {
-//             const result = parse('type "hello \"world\""')[0][0];
-//             assert.deepStrictEqual(result, {
-//                 type: 'type',
-//                 text: 'hello "world"'
-//             });
-//         });
-//     });
+        it('should parse type with escaped quotes', () => {
+            const result = parse('type "hello \\"world\\""')[0];
+            assert.deepStrictEqual(result, {
+                type: 'type',
+                text: 'hello \\"world\\"'
+            });
+        });
+    });
 
-//     describe('Multi-line Scripts', () => {
+    describe('Multi-line Scripts', () => {
 //         it('should parse script with empty lines', () => {
 //             const input = `click <Login Button>
-
+//
 // type "hello"
-
+//
 // click submit`;
 //             const results = parse(input)[0];
 //             assert.equal(results.length, 3);
@@ -179,6 +177,6 @@ describe('DSL Grammar Tests', () => {
 //             assert.equal(results[1].type, 'type');
 //             assert.equal(results[2].type, 'click');
 //         });
-//     });
+    });
 });
 
