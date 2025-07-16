@@ -135,48 +135,78 @@ describe('DSL Grammar Tests', () => {
     });
 
     describe('Multi-line Scripts', () => {
-//         it('should parse script with empty lines', () => {
-//             const input = `click <Login Button>
-//
-// type "hello"
-//
-// click submit`;
-//             const results = parse(input)[0];
-//             assert.equal(results.length, 3);
-//         });
+        it('should parse script with multiple lines', () => {
+            const input = `click <Login Button>
+type "hello"
+click submit`;
+            const results = parse(input);
+            assert.equal(results.length, 3);
+        });
 
-//         it('should parse script with mixed actions', () => {
-//             const input = `type "username"
-// click <Submit Button>
-// type "password123"
-// click login
-// type "Hello, World!"`;
-//             const results = parse(input)[0];
-//             assert.equal(results.length, 5);
-//             assert.equal(results[0].type, 'type');
-//             assert.equal(results[1].type, 'click');
-//             assert.equal(results[2].type, 'type');
-//             assert.equal(results[3].type, 'click');
-//             assert.equal(results[4].type, 'type');
-//         });
+        it('should parse script with empty lines', () => {
+            const input = `click <Login Button>
 
-//         it('should fail on invalid line in multi-line script', () => {
-//             const input = `click button
-// type "text"
-// whoops
-// click submit`;
-//             assert.throws(() => parse(input), Error);
-//         });
-//         it('should parse multiple actions', () => {
-//             const input = `click <Login Button>
-// type "hello"
-// click submit`;
-//             const results = parse(input)[0];
-//             assert.equal(results.length, 3);
-//             assert.equal(results[0].type, 'click');
-//             assert.equal(results[1].type, 'type');
-//             assert.equal(results[2].type, 'click');
-//         });
+type "hello"
+
+click submit
+
+`;
+            const results = parse(input);
+            assert.equal(results.length, 3);
+        });
+
+        it('should parse script with empty lines at beginning', () => {
+            const input = `
+
+click <Login Button>
+type "hello"
+click submit`;
+            const results = parse(input);
+            assert.equal(results.length, 3);
+        });
+
+        it('should parse script with empty lines at end', () => {
+            const input = `click <Login Button>
+type "hello"
+click submit
+
+`;
+            const results = parse(input);
+            assert.equal(results.length, 3);
+        });
+
+        it('should parse script with mixed actions', () => {
+            const input = `type "username"
+click <Submit Button>
+type "password123"
+click login
+type "Hello, World!"`;
+            const results = parse(input);
+            assert.equal(results.length, 5);
+            assert.equal(results[0].type, 'type');
+            assert.equal(results[1].type, 'click');
+            assert.equal(results[2].type, 'type');
+            assert.equal(results[3].type, 'click');
+            assert.equal(results[4].type, 'type');
+        });
+
+        it('should fail on invalid line in multi-line script', () => {
+            const input = `click button
+type "text"
+whoops
+click submit`;
+            assert.throws(() => parse(input), Error);
+        });
+        it('should parse multiple actions', () => {
+            const input = `click <Login Button>
+type "hello"
+click submit`;
+            const results = parse(input);
+            assert.equal(results.length, 3);
+            assert.equal(results[0].type, 'click');
+            assert.equal(results[1].type, 'type');
+            assert.equal(results[2].type, 'click');
+        });
     });
 });
 

@@ -13,11 +13,11 @@ const lexer = moo.compile({
 
 @lexer lexer
 
-main -> statements {% id %}
+main -> statements %nl:* {% id %}
 
 statements -> null {% () => [] %}
     | statement {% v => [v[0]] %}
-    | statements %nl statement {% (d) => [...d[0], d[2]] %}
+    | statements %nl:* statement {% (d) => [...d[0], d[2]] %}
 
 statement -> action {% id %}
 
