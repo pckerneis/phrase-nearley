@@ -4,23 +4,11 @@ const moo = require('moo');
 const lexer = moo.compile({
     ws: /[ \t]+/,
     nl: { match: /\n/, lineBreaks: true },
-    indent: /^[ \t]+/,
     string: /"(?:\\["\\]|[^\n"\\])*"/,
-    identifier: /\{[a-zA-Z_][a-zA-Z0-9_]*\}/,
-    colon: ':',
-    fill: /fill(?![a-zA-Z0-9])/,
-    click: /click(?![a-zA-Z0-9])/,
-    visit: /visit(?![a-zA-Z0-9])/,
-    with_value: /with(?![a-zA-Z0-9])/,
-    as: /as(?![a-zA-Z0-9])/,
-    in_order_to: /in order to(?![a-zA-Z0-9])/,
-    element_word: /[A-Z][a-zA-Z0-9]*/,  // Words that can be part of element names
-    word: /[a-zA-Z][a-zA-Z0-9_]*/  // For macro names and args
+    identifier: /[a-zA-Z][a-zA-Z0-9]*/,
+    langle: '<',
+    rangle: '>',
 });
-
-function tokenValue(token) {
-    return token ? token.value : null;
-}
 %}
 
 @lexer lexer
@@ -32,53 +20,30 @@ statements -> null {% () => [] %}
     | statements %nl statement {% (d) => [...d[0], d[2]] %}
 
 statement -> action {% id %}
-    | macro_definition {% id %}
-    | macro_call {% id %}
 
-macro_definition -> %in_order_to __ %identifier %colon %nl indented_statements {% d => ({
-    type: 'macro_definition',
-    name: d[2].value.slice(1, -1),
-    statements: d[5]
-}) %}
-
-indented_statements -> null {% () => [] %}
-    | indented_statement {% v => [v[0]] %}
-    | indented_statements %nl indented_statement {% (d) => [...d[0], d[2]] %}
-
-indented_statement -> %indent statement {% d => d[1] %}
-
-action -> %fill __ element __ %with_value __ %string {% d => ({
-    type: 'fill',
-    target: d[2],
-    value: d[6].value.slice(1, -1)
-}) %}
-    | %click __ element {% d => ({
-    type: 'click',
+# Actions can be either element actions (click foo) or string actions (type "foo")
+action -> action_on_element __ element {% d => ({
+    type: d[0],
     target: d[2]
 }) %}
-    | %visit __ %string {% d => ({
-    type: 'visit',
-    url: d[2].value.slice(1, -1)
-}) %}
-    | %word __ %as __ %word {% d => ({
-    type: 'macro_call',
-    name: d[0].value,
-    args: [d[4].value]
+    | action_with_string __ %string {% d => ({
+    type: d[0],
+    text: d[2].value.slice(1, -1)
 }) %}
 
-word -> %word {% d => d[0].value %}
+action_on_element -> "click" {% d => d[0].value %}
 
-macro_call -> word __ %as __ word {% d => ({
-    type: 'macro_call',
-    name: d[0].value,
-    args: [d[4].value]
-}) %}
+action_with_string -> "type" {% d => d[0].value %}
 
-# Multi-word element names (e.g., "Login button", "Username field")
-element -> element_words {% d => d[0].join(' ') %}
+# Elements can be either a single identifier or multiple identifiers in <...>
+element -> %identifier {% d => d[0].value %}
+    | %langle multi_identifier %rangle {% d => d[1] %}
 
-element_words -> %element_word {% d => [d[0].value] %}
-    | element_words __ %element_word {% d => [...d[0], d[2].value] %}
+# Multi-identifier is space-separated identifiers
+multi_identifier -> identifiers {% d => d[0].join(' ') %}
+
+identifiers -> %identifier {% d => [d[0].value] %}
+    | identifiers __ %identifier {% d => [...d[0], d[2].value] %}
 
 _ -> %ws:? {% () => null %}
 __ -> %ws {% () => null %}
