@@ -3,7 +3,7 @@ const moo = require('moo');
 
 const lexer = moo.compile({
     ws: /[ \t]+/,
-    nl: { match: /\n/, lineBreaks: true },
+    nl: { match: /[\n]+/, lineBreaks: true },
     string: /"(?:\\["\\]|[^\n"\\])*"/,
     identifier: /[a-zA-Z][a-zA-Z0-9]*/,
     langle: '<',
@@ -13,11 +13,11 @@ const lexer = moo.compile({
 
 @lexer lexer
 
-main -> statements %nl:* {% id %}
+main -> statements %nl:* {% d => d[0] %}
 
 statements -> null {% () => [] %}
     | statement {% v => [v[0]] %}
-    | statements %nl:* statement {% (d) => [...d[0], d[2]] %}
+    | statements %nl statement {% (d) => [...d[0], d[2]] %}
 
 statement -> action {% id %}
 
@@ -33,7 +33,8 @@ action -> action_on_element __ element {% d => ({
 
 action_on_element -> "click" {% d => d[0].value %}
 
-action_with_string -> "type" {% d => d[0].value %}
+action_with_string -> action_with_string_type {% d => d[0][0].value %}
+action_with_string_type -> "type" | "visit"
 
 # Elements can be either a single identifier or multiple identifiers in <...>
 element -> %identifier {% d => d[0].value %}
