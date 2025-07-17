@@ -1,0 +1,29 @@
+Phrase {
+  Main = nl* ListOf<Statement, nl+> nl*
+
+  Statement = action
+
+  action = actionOnElement space+ element
+        | actionWithString space+ string
+
+  actionOnElement = "click"
+
+  actionWithString = actionWithStringType
+  actionWithStringType = "type" | "visit"
+
+  element = identifier              -- single
+         | "<" space* multiIdentifier space* ">"  -- multi
+
+  multiIdentifier = nonemptyListOf<identifier, space+>
+
+  // Lexical rules
+  identifier = letter (alnum)*
+  string = "\"" char* "\""
+  char = escaped | unescaped
+  escaped = "\\" any
+  unescaped = ~("\"" | "\\") any
+
+
+  nl = "\n" | "\r\n" | "\r"
+  space := ~nl "\x00".."\x20"
+}
