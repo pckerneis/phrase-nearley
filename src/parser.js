@@ -10,20 +10,26 @@ class Parser {
         this.semantics = this.grammar.createSemantics().addOperation('eval', {
             Main: (_leadingNl, statements, _trailingNl) => statements.asIteration().children.map(c => c.eval()),
             Statement: (action) => action.eval(),
-            Action_element: (action, _sp, element) => ({
-                type: action.eval(),
-                target: element.eval()
-            }),
-            Action_string: (action, _sp, str) => ({
-                type: action.eval(),
-                text: str.sourceString.slice(1, -1)
-            }),
-            ActionOnElement: (click) => click.sourceString,
-            ActionWithString: (type) => type.eval(),
-            ActionWithStringType: (type) => type.sourceString,
-            Element_single: (id) => id.sourceString,
-            Element_multi: (_, ids, __) => ids.eval(),
-            MultiIdentifier: (ids) => ids.asIteration().children.map(c => c.sourceString).join(' ')
+            action: function(action, _sp, target) {
+                const type = action.eval();
+                if (target.ctorName === 'string') {
+                    return {
+                        type,
+                        text: target.sourceString.slice(1, -1)
+                    };
+                } else {
+                    return {
+                        type,
+                        target: target.eval()
+                    };
+                }
+            },
+            actionOnElement: (click) => click.sourceString,
+            actionWithString: (type) => type.eval(),
+            actionWithStringType: (type) => type.sourceString,
+            element_single: (id) => id.sourceString,
+            element_multi: (_open, _sp1, ids, _sp2, _close) => ids.eval(),
+            multiIdentifier: (ids) => ids.asIteration().children.map(c => c.sourceString).join(' ')
         });
     }
 
