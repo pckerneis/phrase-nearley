@@ -106,9 +106,9 @@ describe('DSL Grammar Tests', () => {
             assert.throws(() => parse('type "unclosed'), Error);
         });
 
-        // it('should fail on invalid string escapes', () => {
-        //     assert.throws(() => parse('type "\\x"'), Error);
-        // });
+        it('should fail on invalid string escapes', () => {
+            assert.throws(() => parse('type "\\x"'), Error);
+        });
         it('should parse type with string', () => {
             const result = parse('type "hello world"')[0];
             assert.deepStrictEqual(result, {

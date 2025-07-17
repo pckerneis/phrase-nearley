@@ -20,7 +20,8 @@ Phrase {
   identifier = letter (alnum)*
   string = "\"" char* "\""
   char = escaped | unescaped
-  escaped = "\\" any
+  escaped = "\\" validEscape
+  validEscape = "\"" | "\\"
   unescaped = ~("\"" | "\\") any
 
 
