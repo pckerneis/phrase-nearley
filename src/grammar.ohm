@@ -1,20 +1,26 @@
 Phrase {
-  Main = nl* ListOf<Statement, nl+> nl*
+  main = nl* listOf<macroOrStatement, nl+> nl*
 
-  Statement = action
+  macroOrStatement = macro | statement
 
+  // Statement
+  statement = action
   action = actionOnElement space+ element
         | actionWithString space+ string
-
   actionOnElement = "click"
-
   actionWithString = actionWithStringType
   actionWithStringType = "type" | "visit"
-
   element = identifier              -- single
          | "<" space* multiIdentifier space* ">"  -- multi
-
   multiIdentifier = nonemptyListOf<identifier, space+>
+
+  // Macro
+  macro = macroHeader nl+ macroBody
+  macroHeader = inOrderTo space+ identifier ":"
+  inOrderTo = "in order to"
+  macroBody = nonemptyListOf<indentedStatement, emptyLine>
+  indentedStatement = indent statement
+  indent = space+
 
   // Lexical rules
   identifier = letter (alnum)*
@@ -27,4 +33,5 @@ Phrase {
 
   nl = "\n" | "\r\n" | "\r"
   space := ~nl "\x00".."\x20"
+  emptyLine = nonemptyListOf<nl, space*>
 }
