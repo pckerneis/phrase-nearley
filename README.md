@@ -13,8 +13,10 @@ A natural language-like E2E testing DSL that bridges the gap between design and 
 
 ```
 in order to login as {user}:
-  fill Username field with "{user}"
-  fill Password field with "secret"
+  click Username_field
+  type "{user}"
+  click Password_field
+  type "secret"
   click Login button
 
 visit "http://localhost:8080"
