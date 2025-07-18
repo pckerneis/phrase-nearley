@@ -1,4 +1,4 @@
-# Phrase-Nearley
+# Phrase-DSL
 
 A natural language-like E2E testing DSL that bridges the gap between design and testing. The DSL focuses on readability while maintaining direct executability without glue code.
 
@@ -18,21 +18,5 @@ in order to login as {user}:
   click Login button
 
 visit "http://localhost:8080"
-login as bob
+login as "bob"
 ```
-
-## Setup
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Build the grammar:
-```bash
-npm run build
-```
-
-## Development
-
-The grammar is defined in `src/grammar.ne` using the Nearley syntax. After making changes to the grammar, rebuild using `npm run build`.

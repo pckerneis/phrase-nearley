@@ -1,7 +1,7 @@
 {
-  "name": "phrase-nearley",
+  "name": "phrase-dsl",
   "version": "0.1.0",
-  "description": "Natural language-like E2E testing DSL using Ohm-JS",
+  "description": "Natural language-like E2E testing DSL",
   "main": "src/index.js",
   "scripts": {
     "test": "mocha tests/**/*.test.js"
