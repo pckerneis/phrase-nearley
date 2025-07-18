@@ -18,12 +18,73 @@ describe('DSL Macro Tests', () => {
   });
 
   describe('Valid macros', () => {
+    it('should parse macro with flexible header and parameters', () => {
+      const result = parse(`
+in order to login as {user} with password {pwd}:
+  click loginField
+  type "{user}"
+  click passwordField
+  type "{pwd}"`)[0];
+
+      assert.deepStrictEqual(result, {
+        type: 'macro',
+        header: [
+          'login',
+          'as',
+          {
+            'param': 'user'
+          },
+          'with',
+          'password',
+          {
+            'param': 'pwd'
+          }
+        ],
+        params: ['user', 'pwd'],
+        body: [
+          {type: 'click', target: 'loginField'},
+          {type: 'type', text: '{user}'},
+          {type: 'click', target: 'passwordField'},
+          {type: 'type', text: '{pwd}'}
+        ]
+      });
+    });
+
+    it('should parse macro with minimal header', () => {
+      const result = parse(`
+in order to login {user} {pwd}:
+  click loginField
+  type "{user}"
+  click passwordField
+  type "{pwd}"`)[0];
+
+      assert.deepStrictEqual(result, {
+        type: 'macro',
+        header: [
+          'login',
+          {
+            'param': 'user'
+          },
+          {
+            'param': 'pwd'
+          }
+        ],
+        params: ['user', 'pwd'],
+        body: [
+          {type: 'click', target: 'loginField'},
+          {type: 'type', text: '{user}'},
+          {type: 'click', target: 'passwordField'},
+          {type: 'type', text: '{pwd}'}
+        ]
+      });
+    });
+
     it('should parse macro', () => {
       const result = parse(`
 in order to login:
   click loginButton`)[0];
       assert.deepStrictEqual(result, {
-        header: 'login', body: [{
+        header: ['login'], params: [], type: 'macro', body: [{
           type: 'click', target: 'loginButton',
         }],
       });
@@ -37,7 +98,7 @@ in order to login:
   type "toto"
 `)[0];
       assert.deepStrictEqual(result, {
-        header: 'login', body: [{
+        header: ['login'], params: [], type: 'macro', body: [{
           type: 'click', target: 'loginButton',
         }, {
           type: 'type', text: 'toto',
@@ -53,7 +114,7 @@ in order to login:
   type "toto"
 `)[0];
       assert.deepStrictEqual(result, {
-        header: 'login', body: [{
+        header: ['login'], params: [], type: 'macro', body: [{
           type: 'click', target: 'loginButton',
         }, {
           type: 'type', text: 'toto',
@@ -69,7 +130,7 @@ in order to login:
 type "foo"
 `);
       assert.deepStrictEqual(result, [{
-        header: 'login', body: [{
+        header: ['login'], params: [], type: 'macro', body: [{
           type: 'click', target: 'loginButton',
         }, {
           type: 'type', text: 'toto',
@@ -81,19 +142,19 @@ type "foo"
   });
 
   describe('Macro parameters', () => {
-    it ('should parse macro parameters', () => {
+    it('should parse macro parameters', () => {
       const result = parse(`
 in order to login as {username}:
  click loginButton`)[0];
 
       assert.deepStrictEqual(result, {
-        header: 'login', body: [{
+        header: ['login', 'as', { param: 'username' }], params: ['username'], type: 'macro', body: [{
           type: 'click', target: 'loginButton',
         }]
       })
     });
 
-    it ('should reject macro identifier if starting with parameter', () => {
+    it('should reject macro identifier if starting with parameter', () => {
       assert.throws(() => parse(`
 in order to {username} login:
  click loginButton`), Error);

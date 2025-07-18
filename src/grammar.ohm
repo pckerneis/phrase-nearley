@@ -17,18 +17,21 @@ Phrase {
   // Macro
   macro = macroHeader nl+ macroBody
   macroHeader = inOrderTo space+ macroIdentifier ":"
-  macroIdentifier = identifier (space+ macroIdentifierFragment)*
-  macroIdentifierFragment = identifier | macroParameter
+  macroIdentifier = identifier (space+ listOf<macroIdentifierFragment, space+>)?
+  macroIdentifierFragment = macroParameter -- parameter
+    | identifier -- identifier
   macroParameter = "{" identifier "}"
   inOrderTo = "in order to"
   macroBody = nonemptyListOf<indentedStatement, emptyLine>
   indentedStatement = indent statement
   indent = space+
 
-  macroCall = identifier
+  macroCall = identifier (space+ listOf<macroCallFragment, space+>)?
+  macroCallFragment = identifier -- identifier
+    | string -- string
 
   // Lexical rules
-  identifier = letter (alnum)*
+  identifier = letter (alnum | "_")*
   string = "\"" char* "\""
   char = escaped | unescaped
   escaped = "\\" validEscape
