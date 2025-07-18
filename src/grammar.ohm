@@ -1,7 +1,7 @@
 Phrase {
   main = nl* listOf<macroOrStatement, nl+> nl*
 
-  macroOrStatement = macro | statement
+  macroOrStatement = macro | statement | macroCall
 
   // Statement
   statement = action
@@ -16,11 +16,16 @@ Phrase {
 
   // Macro
   macro = macroHeader nl+ macroBody
-  macroHeader = inOrderTo space+ identifier ":"
+  macroHeader = inOrderTo space+ macroIdentifier ":"
+  macroIdentifier = identifier (space+ macroIdentifierFragment)*
+  macroIdentifierFragment = identifier | macroParameter
+  macroParameter = "{" identifier "}"
   inOrderTo = "in order to"
   macroBody = nonemptyListOf<indentedStatement, emptyLine>
   indentedStatement = indent statement
   indent = space+
+
+  macroCall = identifier
 
   // Lexical rules
   identifier = letter (alnum)*

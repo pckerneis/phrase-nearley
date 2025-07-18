@@ -79,4 +79,24 @@ type "foo"
       }]);
     });
   });
+
+  describe('Macro parameters', () => {
+    it ('should parse macro parameters', () => {
+      const result = parse(`
+in order to login as {username}:
+ click loginButton`)[0];
+
+      assert.deepStrictEqual(result, {
+        header: 'login', body: [{
+          type: 'click', target: 'loginButton',
+        }]
+      })
+    });
+
+    it ('should reject macro identifier if starting with parameter', () => {
+      assert.throws(() => parse(`
+in order to {username} login:
+ click loginButton`), Error);
+    });
+  });
 });
