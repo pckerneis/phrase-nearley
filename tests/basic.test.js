@@ -90,6 +90,20 @@ describe("DSL Grammar Tests", () => {
     });
   });
 
+  describe("Assertions", () => {
+    it("should parse have text assertion", () => {
+      const result = parse(
+        'expect <greetings_message> to have text "hello, bob!"',
+      ).original[0];
+      assert.deepStrictEqual(result, {
+        type: "assertion",
+        assertion: "to have text",
+        target: "greetings_message",
+        text: "hello, bob!",
+      });
+    });
+  });
+
   describe("String Actions", () => {
     it("should parse type with special characters", () => {
       const result = parse('type "hello@world.com"').original[0];

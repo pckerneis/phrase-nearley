@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const ohm = require("ohm-js");
-const {actionsOnElement, actionsWithString} = require('./actions');
+const { actionsOnElement, actionsWithString } = require("./actions");
 
 class Parser {
   constructor() {
@@ -25,11 +25,10 @@ class Parser {
         return statements.asIteration().children.map((c) => c.eval());
       },
       statement: (action) => action.eval(),
-      action: function (actionIdentifier, _sp, target) {
+      action: function (actionIdentifier, _sp, targetOrElement) {
         const action = actionIdentifier.eval();
-        if (target.ctorName === "string") {
-          // Keep the raw text with escape sequences for parameter substitution
-          const rawText = target.sourceString.slice(1, -1);
+        if (targetOrElement.ctorName === "string") {
+          const rawText = targetOrElement.sourceString.slice(1, -1);
           return {
             type: "action",
             action,
@@ -39,13 +38,21 @@ class Parser {
           return {
             type: "action",
             action,
-            target: target.eval(),
+            target: targetOrElement.eval(),
           };
         }
       },
       actionOnElement: (click) => click.sourceString,
       actionWithString: (type) => type.eval(),
       actionWithStringType: (type) => type.sourceString,
+      assertion: (_expect, _sp, element, _sp2, assertion, _sp3, string) => {
+        return {
+          type: "assertion",
+          target: element.eval(),
+          assertion: assertion.sourceString,
+          text: string.sourceString.slice(1, -1),
+        };
+      },
       element: (_open, _sp1, ids, _sp2, _close) => ids.eval(),
       multiIdentifier: (ids) =>
         ids

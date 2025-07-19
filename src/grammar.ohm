@@ -4,12 +4,18 @@ Phrase {
   macroOrStatement = macro | statement | macroCall
 
   // Statement
-  statement = action
+  statement = assertion | action
+
+  // Actions
   action = actionOnElement space+ element
         | actionWithString space+ string
   actionOnElement = {{actionOnElementTypes}}
   actionWithString = actionWithStringType
   actionWithStringType = {{actionWithStringTypes}}
+
+  // Assertions
+  assertion = "expect" space+ element space+ "to have text" space+ string
+
   element = "<" space* multiIdentifier space* ">"
   multiIdentifier = nonemptyListOf<identifier, space+>
 

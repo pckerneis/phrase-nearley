@@ -21,11 +21,11 @@ in order to login as {user}:
 
 visit "http://localhost:8080"
 login as "bob"
+expect <greetings_message> to have text "Hello, bob!"
 ```
 
 ## TODO
 
-- [] Add builtin actions
-- [] Generate builtin action doc
 - [] Add assertions
+- [] Add Playwright runner
 - [] Add playground (editor and parse result)
