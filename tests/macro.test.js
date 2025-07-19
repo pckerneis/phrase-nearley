@@ -406,5 +406,57 @@ test escaping "value"
       assert.strictEqual(result.expanded[0].type, "type");
       assert.strictEqual(result.expanded[0].text, "Parameter: value, Escaped: {param}");
     });
+
+    it("should handle escaped backslash before parameter (double backslash)", () => {
+      const result = parse(`
+in order to test double escape {param}:
+  type "Value: \\\\{param}"
+
+test double escape "test123"
+`);
+      
+      assert.strictEqual(result.expanded.length, 1);
+      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].text, "Value: \\test123");
+    });
+
+    it("should handle escaped backslash before escaped brace (triple backslash)", () => {
+      const result = parse(`
+in order to test triple escape {param}:
+  type "Value: \\\\\\{param\\} and {param}"
+
+test triple escape "test123"
+`);
+      
+      assert.strictEqual(result.expanded.length, 1);
+      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].text, "Value: \\{param} and test123");
+    });
+
+    it("should handle quadruple backslash (two literal backslashes)", () => {
+      const result = parse(`
+in order to test quad escape:
+  type "Four backslashes: \\\\\\\\"
+
+test quad escape
+`);
+      
+      assert.strictEqual(result.expanded.length, 1);
+      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].text, "Four backslashes: \\\\");
+    });
+
+    it("should handle mixed complex escape sequences", () => {
+      const result = parse(`
+in order to test complex {param}:
+  type "Escaped brace: \\{literal\\}, Parameter: {param}, Literal backslash: \\\\"
+
+test complex "value"
+`);
+      
+      assert.strictEqual(result.expanded.length, 1);
+      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].text, "Escaped brace: {literal}, Parameter: value, Literal backslash: \\");
+    });
   });
 });

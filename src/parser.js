@@ -222,27 +222,60 @@ class Parser {
   }
 
   substituteInString(text, params) {
-    // Step 1: Temporarily replace escaped braces with unique placeholders
-    const ESCAPED_OPEN_PLACEHOLDER = '__ESCAPED_OPEN_BRACE__';
-    const ESCAPED_CLOSE_PLACEHOLDER = '__ESCAPED_CLOSE_BRACE__';
+    // Process the string character by character to handle escape sequences properly
+    let result = '';
+    let i = 0;
     
-    let result = text
-      .replace(/\\\{/g, ESCAPED_OPEN_PLACEHOLDER)   // \{ -> placeholder
-      .replace(/\\\}/g, ESCAPED_CLOSE_PLACEHOLDER); // \} -> placeholder
-    
-    // Step 2: Perform parameter substitution on non-escaped braces
-    for (const [paramName, paramValue] of Object.entries(params)) {
-      // Replace all occurrences of {paramName} with paramValue
-      const regex = new RegExp(`\\{${paramName}\\}`, 'g');
-      result = result.replace(regex, paramValue);
+    while (i < text.length) {
+      if (text[i] === '\\' && i + 1 < text.length) {
+        const nextChar = text[i + 1];
+        
+        if (nextChar === '{') {
+          // This is an escaped brace \{ - add literal brace to result
+          result += '{';
+          i += 2; // Skip both \ and {
+        } else if (nextChar === '}') {
+          // This is an escaped brace \} - add literal brace to result
+          result += '}';
+          i += 2; // Skip both \ and }
+        } else if (nextChar === '"') {
+          // This is an escaped quote \" - add literal quote to result
+          result += '"';
+          i += 2; // Skip both \ and "
+        } else if (nextChar === '\\') {
+          // This is an escaped backslash \\ - add literal backslash to result
+          result += '\\';
+          i += 2; // Skip both backslashes
+        } else {
+          // Unknown escape sequence - keep as is
+          result += text[i];
+          i++;
+        }
+      } else if (text[i] === '{') {
+        // This might be the start of a parameter
+        let paramEnd = text.indexOf('}', i);
+        if (paramEnd !== -1) {
+          const paramName = text.substring(i + 1, paramEnd);
+          if (params.hasOwnProperty(paramName)) {
+            // Replace parameter with its value
+            result += params[paramName];
+            i = paramEnd + 1; // Skip to after the }
+          } else {
+            // Not a valid parameter - keep as literal
+            result += text[i];
+            i++;
+          }
+        } else {
+          // No closing brace - keep as literal
+          result += text[i];
+          i++;
+        }
+      } else {
+        // Regular character - add to result
+        result += text[i];
+        i++;
+      }
     }
-    
-    // Step 3: Process all escape sequences
-    result = result
-      .replace(new RegExp(ESCAPED_OPEN_PLACEHOLDER, 'g'), '{')
-      .replace(new RegExp(ESCAPED_CLOSE_PLACEHOLDER, 'g'), '}')
-      .replace(/\\\"/g, '"')
-      .replace(/\\\\/g, '\\');
     
     return result;
   }
