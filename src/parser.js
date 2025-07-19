@@ -17,9 +17,11 @@ class Parser {
       action: function (action, _sp, target) {
         const type = action.eval();
         if (target.ctorName === "string") {
+          // Keep the raw text with escape sequences for parameter substitution
+          const rawText = target.sourceString.slice(1, -1);
           return {
             type,
-            text: target.sourceString.slice(1, -1),
+            text: rawText,
           };
         } else {
           return {
@@ -220,12 +222,28 @@ class Parser {
   }
 
   substituteInString(text, params) {
-    let result = text;
+    // Step 1: Temporarily replace escaped braces with unique placeholders
+    const ESCAPED_OPEN_PLACEHOLDER = '__ESCAPED_OPEN_BRACE__';
+    const ESCAPED_CLOSE_PLACEHOLDER = '__ESCAPED_CLOSE_BRACE__';
+    
+    let result = text
+      .replace(/\\\{/g, ESCAPED_OPEN_PLACEHOLDER)   // \{ -> placeholder
+      .replace(/\\\}/g, ESCAPED_CLOSE_PLACEHOLDER); // \} -> placeholder
+    
+    // Step 2: Perform parameter substitution on non-escaped braces
     for (const [paramName, paramValue] of Object.entries(params)) {
       // Replace all occurrences of {paramName} with paramValue
       const regex = new RegExp(`\\{${paramName}\\}`, 'g');
       result = result.replace(regex, paramValue);
     }
+    
+    // Step 3: Process all escape sequences
+    result = result
+      .replace(new RegExp(ESCAPED_OPEN_PLACEHOLDER, 'g'), '{')
+      .replace(new RegExp(ESCAPED_CLOSE_PLACEHOLDER, 'g'), '}')
+      .replace(/\\\"/g, '"')
+      .replace(/\\\\/g, '\\');
+    
     return result;
   }
 

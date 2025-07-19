@@ -34,7 +34,7 @@ Phrase {
   string = "\"" char* "\""
   char = escaped | unescaped
   escaped = "\\" validEscape
-  validEscape = "\"" | "\\"
+  validEscape = "\"" | "\\" | "{" | "}"
   unescaped = ~("\"" | "\\") any
 
 

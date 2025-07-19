@@ -353,4 +353,58 @@ complete login as "jdoe"
       assert.strictEqual(result.expanded[2].type, "click");
     });
   });
+
+  describe("Escape character support", () => {
+    it("should handle escaped braces in parameter substitution", () => {
+      const result = parse(`
+in order to show message for {name}:
+  type "Hello \\{world\\} and {name}!"
+
+show message for "Alice"
+`);
+      
+      assert.strictEqual(result.expanded.length, 1);
+      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].text, "Hello {world} and Alice!");
+    });
+
+    it("should handle only escaped braces (no parameters)", () => {
+      const result = parse(`
+in order to show brackets:
+  type "These are literal braces: \\{ and \\}"
+
+show brackets
+`);
+      
+      assert.strictEqual(result.expanded.length, 1);
+      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].text, "These are literal braces: { and }");
+    });
+
+    it("should handle multiple escaped braces in complex strings", () => {
+      const result = parse(`
+in order to show json for {data}:
+  type "\\{\\\"key\\\": \\\"{data}\\\", \\\"literal\\\": \\\"\\{not_param\\}\\\"\\}"
+
+show json for "test123"
+`);
+      
+      assert.strictEqual(result.expanded.length, 1);
+      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].text, '{"key": "test123", "literal": "{not_param}"}');
+    });
+
+    it("should not substitute parameters in escaped braces", () => {
+      const result = parse(`
+in order to test escaping {param}:
+  type "Parameter: {param}, Escaped: \\{param\\}"
+
+test escaping "value"
+`);
+      
+      assert.strictEqual(result.expanded.length, 1);
+      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].text, "Parameter: value, Escaped: {param}");
+    });
+  });
 });
