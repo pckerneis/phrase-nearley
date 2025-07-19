@@ -111,13 +111,41 @@ class Parser {
       }
     });
 
-    statements.forEach((statement) => {
-      if (statement.type === "macroCall") {
-        this.checkMacroCall(statement);
-      }
-    });
+    this.resolveMacroCalls(statements);
 
     return statements;
+  }
+
+  resolveMacroCalls(statements) {
+    statements.forEach((statement) => {
+      if (statement.type === "macroCall") {
+        this.resolveMacroCall(statement);
+      } else if (statement.type === "macro") {
+        this.resolveMacroCalls(statement.body);
+      }
+    });
+  }
+
+  resolveMacroCall(statement) {
+    const callString = statement.fragments.join(" ");
+
+    for (const macro of this.macros) {
+      const macroDef = macro.header
+        .map((fragment) =>
+          typeof fragment === "object" ? `{${fragment.param}}` : fragment,
+        )
+        .join(" ");
+
+      const resolvedParams = this.matchMacroCall(macroDef, callString);
+
+      if (resolvedParams) {
+        statement.resolvedMacro = macro;
+        statement.resolvedParams = resolvedParams;
+        return;
+      }
+    }
+
+    throw new Error("Called macro could not be found.");
   }
 
   macroToRegex(macroDef) {
@@ -152,28 +180,6 @@ class Parser {
       result[name] = paramValues[i];
     });
     return result;
-  }
-
-  checkMacroCall(statement) {
-    const callString = statement.fragments.join(" ");
-
-    for (const macro of this.macros) {
-      const macroDef = macro.header
-        .map((fragment) =>
-          typeof fragment === "object" ? `{${fragment.param}}` : fragment,
-        )
-        .join(" ");
-
-      const resolvedParams = this.matchMacroCall(macroDef, callString);
-
-      if (resolvedParams) {
-        statement.resolvedMacro = macro;
-        statement.resolvedParams = resolvedParams;
-        return;
-      }
-    }
-
-    throw new Error("Called macro could not be found.");
   }
 }
 

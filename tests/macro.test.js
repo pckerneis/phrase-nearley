@@ -243,5 +243,37 @@ login as "foo"
         username: "foo",
       });
     });
+
+    it("should match macro call within another macro", () => {
+      const result = parse(`
+in order to login as {username}:
+  click <loginButton>
+
+in order to foo:
+  login as "foo"
+`);
+
+      assert.deepStrictEqual(result[1].body[0].resolvedMacro, result[0]);
+      assert.deepStrictEqual(result[1].body[0].resolvedParams, {
+        username: "foo",
+      });
+    });
+
+    it.skip("should reject cyclic macro calls", () => {
+      assert.throws(
+        () =>
+          parse(`
+in order to login as {username}:
+  foo
+
+in order to connect as {username}:
+  login as "{username}"
+
+in order to foo:
+  connect as "hello"
+`),
+        "Cyclic macro call detected.",
+      );
+    });
   });
 });

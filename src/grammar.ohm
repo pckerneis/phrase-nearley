@@ -22,7 +22,7 @@ Phrase {
   macroParameter = "{" identifier "}"
   inOrderTo = "in order to"
   macroBody = nonemptyListOf<indentedStatement, emptyLine>
-  indentedStatement = indent statement
+  indentedStatement = indent (statement | macroCall)
   indent = space+
 
   macroCall = identifier (space+ listOf<macroCallFragment, space+>)?
