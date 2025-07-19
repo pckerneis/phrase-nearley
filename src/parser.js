@@ -1,33 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const ohm = require("ohm-js");
-
-const actionsOnElement = [
-  {
-    action: 'click'
-  },
-  {
-    action: 'double-click',
-  },
-  {
-    action: 'right-click',
-  },
-  {
-    action: 'hover',
-  }
-];
-
-const actionsWithString = [
-  {
-    action: 'visit',
-  },
-  {
-    action: 'type'
-  },
-  {
-    action: 'press key',
-  }
-];
+const {actionsOnElement, actionsWithString} = require('./actions');
 
 class Parser {
   constructor() {
@@ -35,8 +9,14 @@ class Parser {
     const grammarFile = path.join(__dirname, "grammar.ohm");
     let grammarContent = fs.readFileSync(grammarFile, "utf-8");
     grammarContent = grammarContent
-        .replace("{{actionOnElementTypes}}", actionsOnElement.map(a => `"${a.action}"`).join(" | "))
-        .replace("{{actionWithStringTypes}}", actionsWithString.map(a => `"${a.action}"`).join(" | "));
+      .replace(
+        "{{actionOnElementTypes}}",
+        actionsOnElement.map((a) => `"${a.action}"`).join(" | "),
+      )
+      .replace(
+        "{{actionWithStringTypes}}",
+        actionsWithString.map((a) => `"${a.action}"`).join(" | "),
+      );
 
     this.grammar = ohm.grammar(grammarContent);
     this.semantics = this.grammar.createSemantics().addOperation("eval", {

@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "mocha tests/**/*.test.js",
-    "format": "prettier . --write"
+    "format": "prettier . --write",
+    "doc": "node ./src/documentation.js"
   },
   "dependencies": {
     "ohm-js": "^17.1.0"
