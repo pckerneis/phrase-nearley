@@ -14,18 +14,20 @@ class Parser {
         return statements.asIteration().children.map((c) => c.eval());
       },
       statement: (action) => action.eval(),
-      action: function (action, _sp, target) {
-        const type = action.eval();
+      action: function (actionIdentifier, _sp, target) {
+        const action = actionIdentifier.eval();
         if (target.ctorName === "string") {
           // Keep the raw text with escape sequences for parameter substitution
           const rawText = target.sourceString.slice(1, -1);
           return {
-            type,
+            type: "action",
+            action,
             text: rawText,
           };
         } else {
           return {
-            type,
+            type: "action",
+            action,
             target: target.eval(),
           };
         }

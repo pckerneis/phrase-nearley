@@ -25,4 +25,6 @@ login as "bob"
 
 ## TODO
 
-- [] Escape "{}" in strings
+- [] Add playground (editor and parse result)
+- [] Add builtin actions
+- [] Add assertions

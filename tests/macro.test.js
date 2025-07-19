@@ -54,10 +54,10 @@ in order to login as {user} with password {pwd}:
         ],
         params: ["user", "pwd"],
         body: [
-          { type: "click", target: "loginField" },
-          { type: "type", text: "{user}" },
-          { type: "click", target: "passwordField" },
-          { type: "type", text: "{pwd}" },
+          { type: "action", action: "click", target: "loginField" },
+          { type: "action", action: "type", text: "{user}" },
+          { type: "action", action: "click", target: "passwordField" },
+          { type: "action", action: "type", text: "{pwd}" },
         ],
       });
     });
@@ -83,10 +83,10 @@ in order to login {user} {pwd}:
         ],
         params: ["user", "pwd"],
         body: [
-          { type: "click", target: "loginField" },
-          { type: "type", text: "{user}" },
-          { type: "click", target: "passwordField" },
-          { type: "type", text: "{pwd}" },
+          { type: "action", action: "click", target: "loginField" },
+          { type: "action", action: "type", text: "{user}" },
+          { type: "action", action: "click", target: "passwordField" },
+          { type: "action", action: "type", text: "{pwd}" },
         ],
       });
     });
@@ -101,7 +101,8 @@ in order to login:
         type: "macro",
         body: [
           {
-            type: "click",
+            type: "action",
+            action: "click",
             target: "loginButton",
           },
         ],
@@ -121,11 +122,13 @@ in order to login:
         type: "macro",
         body: [
           {
-            type: "click",
+            type: "action",
+            action: "click",
             target: "loginButton",
           },
           {
-            type: "type",
+            type: "action",
+            action: "type",
             text: "toto",
           },
         ],
@@ -145,11 +148,13 @@ in order to login:
         type: "macro",
         body: [
           {
-            type: "click",
+            type: "action",
+            action: "click",
             target: "loginButton",
           },
           {
-            type: "type",
+            type: "action",
+            action: "type",
             text: "toto",
           },
         ],
@@ -170,17 +175,20 @@ type "foo"
           type: "macro",
           body: [
             {
-              type: "click",
+              type: "action",
+              action: "click",
               target: "loginButton",
             },
             {
-              type: "type",
+              type: "action",
+              action: "type",
               text: "toto",
             },
           ],
         },
         {
-          type: "type",
+          type: "action",
+          action: "type",
           text: "foo",
         },
       ]);
@@ -199,7 +207,8 @@ in order to login as {username}:
         type: "macro",
         body: [
           {
-            type: "click",
+            type: "action",
+            action: "click",
             target: "loginButton",
           },
         ],
@@ -257,8 +266,8 @@ foo
 `).expanded;
 
       assert.deepStrictEqual(result, [
-        { type: "click", target: "loginButton" },
-        { type: "type", text: "foo" },
+        { type: "action", action: "click", target: "loginButton" },
+        { type: "action", action: "type", text: "foo" },
       ]);
     });
 
@@ -364,10 +373,13 @@ complete login as "jdoe"
 
       // Should successfully expand without throwing cycle error
       assert.strictEqual(result.expanded.length, 3);
-      assert.strictEqual(result.expanded[0].type, "click");
-      assert.strictEqual(result.expanded[1].type, "type");
+      assert.strictEqual(result.expanded[0].type, "action");
+      assert.strictEqual(result.expanded[0].action, "click");
+      assert.strictEqual(result.expanded[1].type, "action");
+      assert.strictEqual(result.expanded[1].action, "type");
       assert.strictEqual(result.expanded[1].text, "jdoe");
-      assert.strictEqual(result.expanded[2].type, "click");
+      assert.strictEqual(result.expanded[2].type, "action");
+      assert.strictEqual(result.expanded[2].action, "click");
     });
   });
 
@@ -381,7 +393,8 @@ show message for "Alice"
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].type, "action");
+      assert.strictEqual(result.expanded[0].action, "type");
       assert.strictEqual(result.expanded[0].text, "Hello {world} and Alice!");
     });
 
@@ -394,7 +407,7 @@ show brackets
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].action, "type");
       assert.strictEqual(
         result.expanded[0].text,
         "These are literal braces: { and }",
@@ -410,7 +423,7 @@ show json for "test123"
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].action, "type");
       assert.strictEqual(
         result.expanded[0].text,
         '{"key": "test123", "literal": "{not_param}"}',
@@ -426,7 +439,7 @@ test escaping "value"
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].action, "type");
       assert.strictEqual(
         result.expanded[0].text,
         "Parameter: value, Escaped: {param}",
@@ -442,7 +455,7 @@ test double escape "test123"
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].action, "type");
       assert.strictEqual(result.expanded[0].text, "Value: \\test123");
     });
 
@@ -455,7 +468,7 @@ test triple escape "test123"
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].action, "type");
       assert.strictEqual(
         result.expanded[0].text,
         "Value: \\{param} and test123",
@@ -471,7 +484,7 @@ test quad escape
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].action, "type");
       assert.strictEqual(result.expanded[0].text, "Four backslashes: \\\\");
     });
 
@@ -484,7 +497,8 @@ test complex "value"
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].type, "type");
+      assert.strictEqual(result.expanded[0].type, "action");
+      assert.strictEqual(result.expanded[0].action, "type");
       assert.strictEqual(
         result.expanded[0].text,
         "Escaped brace: {literal}, Parameter: value, Literal backslash: \\",
