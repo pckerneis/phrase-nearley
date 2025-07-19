@@ -258,14 +258,13 @@ foo
 
       assert.deepStrictEqual(result, [
         { type: "click", target: "loginButton" },
-        { type: "type", text: "foo", },
+        { type: "type", text: "foo" },
       ]);
     });
 
     it("should reject cyclic macro calls", () => {
-      assert.throws(
-        () =>
-          parse(`
+      assert.throws(() =>
+        parse(`
 in order to login as {username}:
   foo
 
@@ -276,7 +275,8 @@ in order to foo:
   connect as "hello"
 
 foo
-`));
+`),
+      );
     });
   });
 
@@ -297,11 +297,16 @@ macro a
       } catch (error) {
         errorMessage = error.message;
       }
-      
+
       // Verify the error message shows the complete cycle path
-      assert(errorMessage.includes("Cyclic macro call detected"), "Should mention cyclic macro call");
-      assert(errorMessage.includes("macro a -> macro b -> macro a"), 
-        `Should show complete cycle path, got: ${errorMessage}`);
+      assert(
+        errorMessage.includes("Cyclic macro call detected"),
+        "Should mention cyclic macro call",
+      );
+      assert(
+        errorMessage.includes("macro a -> macro b -> macro a"),
+        `Should show complete cycle path, got: ${errorMessage}`,
+      );
     });
 
     it("should detect indirect cycles with parameter details", () => {
@@ -323,12 +328,24 @@ step "test"
       } catch (error) {
         errorMessage = error.message;
       }
-      
+
       // Verify the error message shows the complete cycle path with parameters
-      assert(errorMessage.includes("Cyclic macro call detected"), "Should mention cyclic macro call");
-      assert(errorMessage.includes("step {name}"), "Should show macro with parameters");
-      assert(errorMessage.includes("execute {name}"), "Should show second macro in chain");
-      assert(errorMessage.includes("perform {name}"), "Should show third macro in chain");
+      assert(
+        errorMessage.includes("Cyclic macro call detected"),
+        "Should mention cyclic macro call",
+      );
+      assert(
+        errorMessage.includes("step {name}"),
+        "Should show macro with parameters",
+      );
+      assert(
+        errorMessage.includes("execute {name}"),
+        "Should show second macro in chain",
+      );
+      assert(
+        errorMessage.includes("perform {name}"),
+        "Should show third macro in chain",
+      );
       assert(errorMessage.includes("->"), "Should show call chain with arrows");
     });
 
@@ -344,7 +361,7 @@ in order to complete login as {user}:
 
 complete login as "jdoe"
 `);
-      
+
       // Should successfully expand without throwing cycle error
       assert.strictEqual(result.expanded.length, 3);
       assert.strictEqual(result.expanded[0].type, "click");
@@ -362,7 +379,7 @@ in order to show message for {name}:
 
 show message for "Alice"
 `);
-      
+
       assert.strictEqual(result.expanded.length, 1);
       assert.strictEqual(result.expanded[0].type, "type");
       assert.strictEqual(result.expanded[0].text, "Hello {world} and Alice!");
@@ -375,10 +392,13 @@ in order to show brackets:
 
 show brackets
 `);
-      
+
       assert.strictEqual(result.expanded.length, 1);
       assert.strictEqual(result.expanded[0].type, "type");
-      assert.strictEqual(result.expanded[0].text, "These are literal braces: { and }");
+      assert.strictEqual(
+        result.expanded[0].text,
+        "These are literal braces: { and }",
+      );
     });
 
     it("should handle multiple escaped braces in complex strings", () => {
@@ -388,10 +408,13 @@ in order to show json for {data}:
 
 show json for "test123"
 `);
-      
+
       assert.strictEqual(result.expanded.length, 1);
       assert.strictEqual(result.expanded[0].type, "type");
-      assert.strictEqual(result.expanded[0].text, '{"key": "test123", "literal": "{not_param}"}');
+      assert.strictEqual(
+        result.expanded[0].text,
+        '{"key": "test123", "literal": "{not_param}"}',
+      );
     });
 
     it("should not substitute parameters in escaped braces", () => {
@@ -401,10 +424,13 @@ in order to test escaping {param}:
 
 test escaping "value"
 `);
-      
+
       assert.strictEqual(result.expanded.length, 1);
       assert.strictEqual(result.expanded[0].type, "type");
-      assert.strictEqual(result.expanded[0].text, "Parameter: value, Escaped: {param}");
+      assert.strictEqual(
+        result.expanded[0].text,
+        "Parameter: value, Escaped: {param}",
+      );
     });
 
     it("should handle escaped backslash before parameter (double backslash)", () => {
@@ -414,7 +440,7 @@ in order to test double escape {param}:
 
 test double escape "test123"
 `);
-      
+
       assert.strictEqual(result.expanded.length, 1);
       assert.strictEqual(result.expanded[0].type, "type");
       assert.strictEqual(result.expanded[0].text, "Value: \\test123");
@@ -427,10 +453,13 @@ in order to test triple escape {param}:
 
 test triple escape "test123"
 `);
-      
+
       assert.strictEqual(result.expanded.length, 1);
       assert.strictEqual(result.expanded[0].type, "type");
-      assert.strictEqual(result.expanded[0].text, "Value: \\{param} and test123");
+      assert.strictEqual(
+        result.expanded[0].text,
+        "Value: \\{param} and test123",
+      );
     });
 
     it("should handle quadruple backslash (two literal backslashes)", () => {
@@ -440,7 +469,7 @@ in order to test quad escape:
 
 test quad escape
 `);
-      
+
       assert.strictEqual(result.expanded.length, 1);
       assert.strictEqual(result.expanded[0].type, "type");
       assert.strictEqual(result.expanded[0].text, "Four backslashes: \\\\");
@@ -453,10 +482,13 @@ in order to test complex {param}:
 
 test complex "value"
 `);
-      
+
       assert.strictEqual(result.expanded.length, 1);
       assert.strictEqual(result.expanded[0].type, "type");
-      assert.strictEqual(result.expanded[0].text, "Escaped brace: {literal}, Parameter: value, Literal backslash: \\");
+      assert.strictEqual(
+        result.expanded[0].text,
+        "Escaped brace: {literal}, Parameter: value, Literal backslash: \\",
+      );
     });
   });
 });

@@ -94,10 +94,10 @@ class Parser {
     const statements = this.semantics(matchResult).eval();
     this.registerMacros(statements);
     const expanded = this.expandMacros(statements);
-    
+
     return {
       original: statements,
-      expanded: expanded
+      expanded: expanded,
     };
   }
 
@@ -175,44 +175,53 @@ class Parser {
     // Check for cycles
     const macroSignature = this.getMacroSignature(matchedMacro);
     if (callStack.includes(macroSignature)) {
-      throw new Error(`Cyclic macro call detected: ${callStack.join(" -> ")} -> ${macroSignature}`);
+      throw new Error(
+        `Cyclic macro call detected: ${callStack.join(" -> ")} -> ${macroSignature}`,
+      );
     }
 
     // Add current macro to call stack
     const newCallStack = [...callStack, macroSignature];
 
     // Substitute parameters in macro body and recursively expand
-    const substitutedBody = this.substituteParameters(matchedMacro.body, resolvedParams);
+    const substitutedBody = this.substituteParameters(
+      matchedMacro.body,
+      resolvedParams,
+    );
     return this.expandMacros(substitutedBody, newCallStack);
   }
 
   getMacroSignature(macro) {
     return macro.header
-      .map((fragment) => (typeof fragment === "object" ? `{${fragment.param}}` : fragment))
+      .map((fragment) =>
+        typeof fragment === "object" ? `{${fragment.param}}` : fragment,
+      )
       .join(" ");
   }
 
   substituteParameters(statements, params) {
-    return statements.map(statement => {
+    return statements.map((statement) => {
       if (statement.type === "macro") {
         // Recursively substitute in nested macro definitions
         return {
           ...statement,
-          body: this.substituteParameters(statement.body, params)
+          body: this.substituteParameters(statement.body, params),
         };
       } else if (statement.type === "macroCall") {
         // Substitute parameters in macro call fragments
         return {
           ...statement,
-          fragments: statement.fragments.map(fragment => 
-            typeof fragment === "string" ? this.substituteInString(fragment, params) : fragment
-          )
+          fragments: statement.fragments.map((fragment) =>
+            typeof fragment === "string"
+              ? this.substituteInString(fragment, params)
+              : fragment,
+          ),
         };
       } else if (statement.text) {
         // Substitute parameters in text strings
         return {
           ...statement,
-          text: this.substituteInString(statement.text, params)
+          text: this.substituteInString(statement.text, params),
         };
       } else {
         // Return statement as-is for other types
@@ -223,37 +232,37 @@ class Parser {
 
   substituteInString(text, params) {
     // Process the string character by character to handle escape sequences properly
-    let result = '';
+    let result = "";
     let i = 0;
-    
+
     while (i < text.length) {
-      if (text[i] === '\\' && i + 1 < text.length) {
+      if (text[i] === "\\" && i + 1 < text.length) {
         const nextChar = text[i + 1];
-        
-        if (nextChar === '{') {
+
+        if (nextChar === "{") {
           // This is an escaped brace \{ - add literal brace to result
-          result += '{';
+          result += "{";
           i += 2; // Skip both \ and {
-        } else if (nextChar === '}') {
+        } else if (nextChar === "}") {
           // This is an escaped brace \} - add literal brace to result
-          result += '}';
+          result += "}";
           i += 2; // Skip both \ and }
         } else if (nextChar === '"') {
           // This is an escaped quote \" - add literal quote to result
           result += '"';
           i += 2; // Skip both \ and "
-        } else if (nextChar === '\\') {
+        } else if (nextChar === "\\") {
           // This is an escaped backslash \\ - add literal backslash to result
-          result += '\\';
+          result += "\\";
           i += 2; // Skip both backslashes
         } else {
           // Unknown escape sequence - keep as is
           result += text[i];
           i++;
         }
-      } else if (text[i] === '{') {
+      } else if (text[i] === "{") {
         // This might be the start of a parameter
-        let paramEnd = text.indexOf('}', i);
+        let paramEnd = text.indexOf("}", i);
         if (paramEnd !== -1) {
           const paramName = text.substring(i + 1, paramEnd);
           if (params.hasOwnProperty(paramName)) {
@@ -276,7 +285,7 @@ class Parser {
         i++;
       }
     }
-    
+
     return result;
   }
 
