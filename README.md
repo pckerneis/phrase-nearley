@@ -13,11 +13,11 @@ A natural language-like E2E testing DSL that bridges the gap between design and 
 
 ```
 in order to login as {user}:
-  click Username_field
+  click <Username_field>
   type "{user}"
-  click Password_field
+  click <Password_field>
   type "secret"
-  click Login button
+  click <Login_button>
 
 visit "http://localhost:8080"
 login as "bob"
