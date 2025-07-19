@@ -12,8 +12,7 @@ function parse(input) {
 
 describe('DSL Grammar Tests', () => {
     describe('Invalid Actions', () => {
-        // TODO unskip when macro calls are checked
-        it.skip('should fail on unknown action', () => {
+        it('should fail on unknown action', () => {
             assert.throws(() => parse('foo bar'), Error);
             assert.throws(() => parse('unknown <Something>'), Error);
         });
@@ -23,8 +22,7 @@ describe('DSL Grammar Tests', () => {
             assert.throws(() => parse('type'), Error);
         });
 
-        // TODO unskip when macro calls are checked
-        it.skip('should fail on wrong argument types', () => {
+        it('should fail on wrong argument types', () => {
             assert.throws(() => parse('click "button"'), Error);
             assert.throws(() => parse('type foo'), Error);
             assert.throws(() => parse('type <Text Field>'), Error);

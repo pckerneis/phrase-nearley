@@ -4,7 +4,7 @@ const ohm = require('ohm-js');
 
 class Parser {
   constructor() {
-    this.macros = new Map();
+    this.macros = [];
     const grammarFile = path.join(__dirname, 'grammar.ohm');
     const grammarContent = fs.readFileSync(grammarFile, 'utf-8');
     this.grammar = ohm.grammar(grammarContent);
@@ -58,7 +58,8 @@ class Parser {
       indentedStatement: (_sp, statement) => statement.eval(),
       macroCall: (first, _sp, rest) => {
         const fragments = [
-            first.sourceString, ...rest.children[0].asIteration().children.map(c => c.eval()),
+            first.sourceString,
+          ...(rest.children[0]?.asIteration().children.map(c => c.eval()) ?? []),
         ];
         return {
           type: 'macroCall',
@@ -75,43 +76,85 @@ class Parser {
     if (!matchResult.succeeded()) {
       throw new Error('Failed to parse input:\n' + matchResult.message);
     }
-    // TODO expand macros
-    return this.semantics(matchResult).eval();
+
+    const statements = this.semantics(matchResult).eval();
+
+    statements.forEach(statement => {
+      if (statement.type === 'macro') {
+        const testHeader1 = statement.header.map(fragment => typeof fragment === 'object' ? '{}' : fragment)
+            .join(' ');
+
+        for (const macro of this.macros) {
+          const testHeader2 = macro.header.map(fragment => typeof fragment === 'object' ? '{}' : fragment)
+              .join(' ');
+
+          if (testHeader1 === testHeader2) {
+            throw new Error('Macro is already registered.');
+          }
+        }
+
+        this.macros.push(statement);
+      }
+    });
+
+    statements.forEach(statement => {
+      if (statement.type === 'macroCall') {
+        this.checkMacroCall(statement);
+      }
+    });
+
+    return statements;
   }
 
-  expandMacro(name, args) {
-    const macro = this.macros.get(name);
-    if (!macro) {
-      throw new Error(`Macro '${name}' not found`);
-    }
-    if (args.length !== macro.params.length) {
-      throw new Error(`Macro '${name}' expects ${macro.params.length} arguments, got ${args.length}`);
-    }
+  macroToRegex(macroDef) {
+    // Split by parameter tokens like {param}
+    const parts = macroDef.split(/(\{[^}]+\})/g);
 
-    const paramMap = {};
-    macro.params.forEach((param, i) => {
-      paramMap[param] = args[i];
+    const regexParts = parts.map(part => {
+      if (part.match(/^\{[^}]+\}$/)) {
+        // Match quoted string for parameter
+        return '"([^"]+)"';
+      } else {
+        // Escape the literal text
+        return part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').trim().replace(/\s+/g, '\\s+');
+      }
     });
 
-    return macro.body.map(statement => {
-      const newStatement = { ...statement };
-      if (newStatement.text) {
-        newStatement.text = this.replaceParameters(newStatement.text, paramMap);
-      }
-      if (newStatement.target) {
-        newStatement.target = this.replaceParameters(newStatement.target, paramMap);
-      }
-      return newStatement;
-    });
+    return new RegExp('^' + regexParts.join('\\s*') + '$');
   }
 
-  replaceParameters(text, params) {
-    return text.replace(/\{([^}]+)\}/g, (match, param) => {
-      if (params[param] === undefined) {
-        throw new Error(`Missing argument for parameter '${param}'`);
-      }
-      return params[param];
+  matchMacroCall(macroDef, macroCall) {
+    const paramNames = [...macroDef.matchAll(/\{([^}]+)\}/g)].map(m => m[1]);
+    const regex = this.macroToRegex(macroDef);
+    const match = macroCall.match(regex);
+    if (!match) return null;
+
+    const paramValues = match.slice(1); // first match is the whole string
+    const result = {};
+    paramNames.forEach((name, i) => {
+      result[name] = paramValues[i];
     });
+    return result;
+  }
+
+  checkMacroCall(statement) {
+    const callString = statement.fragments.join(' ');
+
+    for (const macro of this.macros) {
+      const macroDef = macro.header
+          .map(fragment => typeof fragment === 'object' ? `{${fragment.param}}` : fragment)
+          .join(' ');
+
+      const resolvedParams = this.matchMacroCall(macroDef, callString);
+
+      if (resolvedParams) {
+        statement.resolvedMacro = macro;
+        statement.resolvedParams = resolvedParams;
+        return;
+      }
+    }
+
+    throw new Error('Called macro could not be found.');
   }
 }
 

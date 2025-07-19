@@ -15,6 +15,16 @@ describe('DSL Macro Tests', () => {
     it('should fail empty macro body', () => {
       assert.throws(() => parse('in order to login:'), Error);
     });
+
+    it('should reject duplicate macro headers', () => {
+      assert.throws(() => parse(`
+in order to login as {foo}:
+  click foo
+
+in order to login as {bar}:
+  click bar
+`));
+    });
   });
 
   describe('Valid macros', () => {
@@ -158,6 +168,34 @@ in order to login as {username}:
       assert.throws(() => parse(`
 in order to {username} login:
  click loginButton`), Error);
+    });
+  });
+
+  describe('Macro calls', () => {
+    it('should match simple macro calls', () => {
+      const result = parse(`
+in order to login:
+  click loginButton
+
+login
+`);
+
+      assert.deepStrictEqual(result[1].resolvedMacro, result[0]);
+      assert.deepStrictEqual(result[1].resolvedParams, {});
+    });
+
+    it('should match macro call with one parameter', () => {
+      const result = parse(`
+in order to login as {username}:
+  click loginButton
+
+login as "foo"
+`);
+
+      assert.deepStrictEqual(result[1].resolvedMacro, result[0]);
+      assert.deepStrictEqual(result[1].resolvedParams, {
+        username: 'foo'
+      });
     });
   });
 });
