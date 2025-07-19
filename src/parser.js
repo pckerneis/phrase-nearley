@@ -31,8 +31,7 @@ class Parser {
       actionOnElement: (click) => click.sourceString,
       actionWithString: (type) => type.eval(),
       actionWithStringType: (type) => type.sourceString,
-      element_single: (id) => id.sourceString,
-      element_multi: (_open, _sp1, ids, _sp2, _close) => ids.eval(),
+      element: (_open, _sp1, ids, _sp2, _close) => ids.eval(),
       multiIdentifier: (ids) => ids.asIteration().children.map(c => c.sourceString).join(' '),
       macro: (header, _sp, body) => {
         const { fragments, params } = header.eval();

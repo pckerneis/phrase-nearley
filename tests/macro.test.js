@@ -19,10 +19,10 @@ describe('DSL Macro Tests', () => {
     it('should reject duplicate macro headers', () => {
       assert.throws(() => parse(`
 in order to login as {foo}:
-  click foo
+  click <foo>
 
 in order to login as {bar}:
-  click bar
+  click <bar>
 `));
     });
   });
@@ -31,9 +31,9 @@ in order to login as {bar}:
     it('should parse macro with flexible header and parameters', () => {
       const result = parse(`
 in order to login as {user} with password {pwd}:
-  click loginField
+  click <loginField>
   type "{user}"
-  click passwordField
+  click <passwordField>
   type "{pwd}"`)[0];
 
       assert.deepStrictEqual(result, {
@@ -63,9 +63,9 @@ in order to login as {user} with password {pwd}:
     it('should parse macro with minimal header', () => {
       const result = parse(`
 in order to login {user} {pwd}:
-  click loginField
+  click <loginField>
   type "{user}"
-  click passwordField
+  click <passwordField>
   type "{pwd}"`)[0];
 
       assert.deepStrictEqual(result, {
@@ -92,7 +92,7 @@ in order to login {user} {pwd}:
     it('should parse macro', () => {
       const result = parse(`
 in order to login:
-  click loginButton`)[0];
+  click <loginButton>`)[0];
       assert.deepStrictEqual(result, {
         header: ['login'], params: [], type: 'macro', body: [{
           type: 'click', target: 'loginButton',
@@ -103,7 +103,7 @@ in order to login:
     it('should accept non empty lines in macro body', () => {
       const result = parse(`
 in order to login:
-  click loginButton
+  click <loginButton>
   
   type "toto"
 `)[0];
@@ -119,7 +119,7 @@ in order to login:
     it('should accept empty lines in macro body', () => {
       const result = parse(`
 in order to login:
-  click loginButton
+  click <loginButton>
 
   type "toto"
 `)[0];
@@ -135,7 +135,7 @@ in order to login:
     it('should parse root statement after macro body', () => {
       const result = parse(`
 in order to login:
-  click loginButton
+  click <loginButton>
   type "toto"
 type "foo"
 `);
@@ -155,7 +155,7 @@ type "foo"
     it('should parse macro parameters', () => {
       const result = parse(`
 in order to login as {username}:
- click loginButton`)[0];
+ click <loginButton>`)[0];
 
       assert.deepStrictEqual(result, {
         header: ['login', 'as', { param: 'username' }], params: ['username'], type: 'macro', body: [{
@@ -167,7 +167,7 @@ in order to login as {username}:
     it('should reject macro identifier if starting with parameter', () => {
       assert.throws(() => parse(`
 in order to {username} login:
- click loginButton`), Error);
+ click <loginButton>`), Error);
     });
   });
 
@@ -175,7 +175,7 @@ in order to {username} login:
     it('should match simple macro calls', () => {
       const result = parse(`
 in order to login:
-  click loginButton
+  click <loginButton>
 
 login
 `);
@@ -187,7 +187,7 @@ login
     it('should match macro call with one parameter', () => {
       const result = parse(`
 in order to login as {username}:
-  click loginButton
+  click <loginButton>
 
 login as "foo"
 `);

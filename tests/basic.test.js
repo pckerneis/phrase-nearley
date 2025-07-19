@@ -24,14 +24,14 @@ describe('DSL Grammar Tests', () => {
 
         it('should fail on wrong argument types', () => {
             assert.throws(() => parse('click "button"'), Error);
-            assert.throws(() => parse('type foo'), Error);
+            assert.throws(() => parse('type <foo>'), Error);
             assert.throws(() => parse('type <Text Field>'), Error);
         });
     });
 
     describe('Element Actions', () => {
         it('should parse click with identifier containing digits', () => {
-            const result = parse('click button2')[0];
+            const result = parse('click <button2>')[0];
             assert.deepStrictEqual(result, {
                 type: 'click',
                 target: 'button2'
@@ -55,7 +55,7 @@ describe('DSL Grammar Tests', () => {
             assert.throws(() => parse('click Login Button>'), Error);
         });
         it('should parse click with single identifier', () => {
-            const result = parse('click foo')[0];
+            const result = parse('click <foo>')[0];
             assert.deepStrictEqual(result, {
                 type: 'click',
                 target: 'foo'
@@ -138,7 +138,7 @@ describe('DSL Grammar Tests', () => {
         it('should parse script with multiple lines', () => {
             const input = `click <Login Button>
 type "hello"
-click submit`;
+click <submit>`;
             const results = parse(input);
             assert.equal(results.length, 3);
         });
@@ -148,7 +148,7 @@ click submit`;
 
 type "hello"
 
-click submit
+click <submit>
 
 `;
             const results = parse(input);
@@ -160,7 +160,7 @@ click submit
 
 click <Login Button>
 type "hello"
-click submit`;
+click <submit>`;
             const results = parse(input);
             assert.equal(results.length, 3);
         });
@@ -168,7 +168,7 @@ click submit`;
         it('should parse script with empty lines at end', () => {
             const input = `click <Login Button>
 type "hello"
-click submit
+click <submit>
 
 `;
             const results = parse(input);
@@ -179,7 +179,7 @@ click submit
             const input = `type "username"
 click <Submit Button>
 type "password123"
-click login
+click <login>
 type "Hello, World!"`;
             const results = parse(input);
             assert.equal(results.length, 5);
@@ -194,13 +194,13 @@ type "Hello, World!"`;
             const input = `click button
 type "text"
 whoops
-click submit`;
+click <submit>`;
             assert.throws(() => parse(input), Error);
         });
         it('should parse multiple actions', () => {
             const input = `click <Login Button>
 type "hello"
-click submit`;
+click <submit>`;
             try {
                 const results = parse(input);
                 console.log('Parsed results:', JSON.stringify(results, null, 2));

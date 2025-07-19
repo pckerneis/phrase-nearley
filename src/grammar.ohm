@@ -10,8 +10,7 @@ Phrase {
   actionOnElement = "click"
   actionWithString = actionWithStringType
   actionWithStringType = "type" | "visit"
-  element = identifier              -- single
-         | "<" space* multiIdentifier space* ">"  -- multi
+  element = "<" space* multiIdentifier space* ">"
   multiIdentifier = nonemptyListOf<identifier, space+>
 
   // Macro
