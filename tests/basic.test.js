@@ -57,10 +57,10 @@ describe("DSL Grammar Tests", () => {
       assert.throws(() => parse("click Login Button>"), Error);
     });
     it("should parse click with single identifier", () => {
-      const result = parse("click <foo>").original[0];
+      const result = parse("double-click <foo>").original[0];
       assert.deepStrictEqual(result, {
         type: "action",
-        action: "click",
+        action: "double-click",
         target: "foo",
       });
     });

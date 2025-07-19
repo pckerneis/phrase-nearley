@@ -25,6 +25,7 @@ login as "bob"
 
 ## TODO
 
-- [] Add playground (editor and parse result)
 - [] Add builtin actions
+- [] Generate builtin action doc
 - [] Add assertions
+- [] Add playground (editor and parse result)

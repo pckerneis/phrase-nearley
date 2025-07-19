@@ -7,9 +7,9 @@ Phrase {
   statement = action
   action = actionOnElement space+ element
         | actionWithString space+ string
-  actionOnElement = "click"
+  actionOnElement = {{actionOnElementTypes}}
   actionWithString = actionWithStringType
-  actionWithStringType = "type" | "visit"
+  actionWithStringType = {{actionWithStringTypes}}
   element = "<" space* multiIdentifier space* ">"
   multiIdentifier = nonemptyListOf<identifier, space+>
 
