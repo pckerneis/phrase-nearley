@@ -25,6 +25,4 @@ login as "bob"
 
 ## TODO
 
-- [] Expand macro calls and substitute parameters
-- [] Detect cyclic calls
 - [] Escape "{}" in strings

@@ -279,4 +279,78 @@ foo
 `));
     });
   });
+
+  describe("Cycle detection", () => {
+    it("should detect direct cycles with clear error message", () => {
+      let errorMessage = "";
+      try {
+        parse(`
+in order to macro a:
+  macro b
+
+in order to macro b:
+  macro a
+
+macro a
+`);
+        assert.fail("Should have thrown a cycle detection error");
+      } catch (error) {
+        errorMessage = error.message;
+      }
+      
+      // Verify the error message shows the complete cycle path
+      assert(errorMessage.includes("Cyclic macro call detected"), "Should mention cyclic macro call");
+      assert(errorMessage.includes("macro a -> macro b -> macro a"), 
+        `Should show complete cycle path, got: ${errorMessage}`);
+    });
+
+    it("should detect indirect cycles with parameter details", () => {
+      let errorMessage = "";
+      try {
+        parse(`
+in order to step {name}:
+  execute "{name}"
+
+in order to execute {name}:
+  perform "{name}"
+
+in order to perform {name}:
+  step "{name}"
+
+step "test"
+`);
+        assert.fail("Should have thrown a cycle detection error");
+      } catch (error) {
+        errorMessage = error.message;
+      }
+      
+      // Verify the error message shows the complete cycle path with parameters
+      assert(errorMessage.includes("Cyclic macro call detected"), "Should mention cyclic macro call");
+      assert(errorMessage.includes("step {name}"), "Should show macro with parameters");
+      assert(errorMessage.includes("execute {name}"), "Should show second macro in chain");
+      assert(errorMessage.includes("perform {name}"), "Should show third macro in chain");
+      assert(errorMessage.includes("->"), "Should show call chain with arrows");
+    });
+
+    it("should allow valid recursive-like macros (no cycle)", () => {
+      const result = parse(`
+in order to login as {user}:
+  click <loginField>
+  type "{user}"
+
+in order to complete login as {user}:
+  login as "{user}"
+  click <submitButton>
+
+complete login as "jdoe"
+`);
+      
+      // Should successfully expand without throwing cycle error
+      assert.strictEqual(result.expanded.length, 3);
+      assert.strictEqual(result.expanded[0].type, "click");
+      assert.strictEqual(result.expanded[1].type, "type");
+      assert.strictEqual(result.expanded[1].text, "jdoe");
+      assert.strictEqual(result.expanded[2].type, "click");
+    });
+  });
 });
