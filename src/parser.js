@@ -90,17 +90,27 @@ class Parser {
     }
 
     const statements = this.semantics(matchResult).eval();
+    this.registerMacros(statements);
+    const expanded = this.expandMacros(statements);
+    
+    return {
+      original: statements,
+      expanded: expanded
+    };
+  }
+
+  registerMacros(statements) {
+    const getMacroHeaderWithoutParameters = (statement) =>
+      statement.header
+        .map((fragment) => (typeof fragment === "object" ? "{}" : fragment))
+        .join(" ");
 
     statements.forEach((statement) => {
       if (statement.type === "macro") {
-        const testHeader1 = statement.header
-          .map((fragment) => (typeof fragment === "object" ? "{}" : fragment))
-          .join(" ");
+        const testHeader1 = getMacroHeaderWithoutParameters(statement);
 
         for (const macro of this.macros) {
-          const testHeader2 = macro.header
-            .map((fragment) => (typeof fragment === "object" ? "{}" : fragment))
-            .join(" ");
+          const testHeader2 = getMacroHeaderWithoutParameters(macro);
 
           if (testHeader1 === testHeader2) {
             throw new Error("Macro is already registered.");
@@ -110,24 +120,34 @@ class Parser {
         this.macros.push(statement);
       }
     });
-
-    this.resolveMacroCalls(statements);
-
-    return statements;
   }
 
-  resolveMacroCalls(statements) {
-    statements.forEach((statement) => {
+  expandMacros(statements, callStack = []) {
+    const expandedStatements = [];
+
+    for (const statement of statements) {
       if (statement.type === "macroCall") {
-        this.resolveMacroCall(statement);
+        // Find and expand the macro call
+        const expandedMacro = this.expandMacroCall(statement, callStack);
+        expandedStatements.push(...expandedMacro);
       } else if (statement.type === "macro") {
-        this.resolveMacroCalls(statement.body);
+        // Skip macro definitions in the output
+        continue;
+      } else {
+        // Regular statement, keep as-is
+        expandedStatements.push(statement);
       }
-    });
+    }
+
+    return expandedStatements;
   }
 
-  resolveMacroCall(statement) {
+  expandMacroCall(statement, callStack = []) {
     const callString = statement.fragments.join(" ");
+
+    // Find matching macro definition
+    let matchedMacro = null;
+    let resolvedParams = null;
 
     for (const macro of this.macros) {
       const macroDef = macro.header
@@ -136,16 +156,77 @@ class Parser {
         )
         .join(" ");
 
-      const resolvedParams = this.matchMacroCall(macroDef, callString);
-
-      if (resolvedParams) {
+      const params = this.matchMacroCall(macroDef, callString);
+      if (params) {
+        matchedMacro = macro;
+        resolvedParams = params;
         statement.resolvedMacro = macro;
-        statement.resolvedParams = resolvedParams;
-        return;
+        statement.resolvedParams = params;
+        break;
       }
     }
 
-    throw new Error("Called macro could not be found.");
+    if (!matchedMacro) {
+      throw new Error(`Called macro could not be found: ${callString}`);
+    }
+
+    // Check for cycles
+    const macroSignature = this.getMacroSignature(matchedMacro);
+    if (callStack.includes(macroSignature)) {
+      throw new Error(`Cyclic macro call detected: ${callStack.join(" -> ")} -> ${macroSignature}`);
+    }
+
+    // Add current macro to call stack
+    const newCallStack = [...callStack, macroSignature];
+
+    // Substitute parameters in macro body and recursively expand
+    const substitutedBody = this.substituteParameters(matchedMacro.body, resolvedParams);
+    return this.expandMacros(substitutedBody, newCallStack);
+  }
+
+  getMacroSignature(macro) {
+    return macro.header
+      .map((fragment) => (typeof fragment === "object" ? `{${fragment.param}}` : fragment))
+      .join(" ");
+  }
+
+  substituteParameters(statements, params) {
+    return statements.map(statement => {
+      if (statement.type === "macro") {
+        // Recursively substitute in nested macro definitions
+        return {
+          ...statement,
+          body: this.substituteParameters(statement.body, params)
+        };
+      } else if (statement.type === "macroCall") {
+        // Substitute parameters in macro call fragments
+        return {
+          ...statement,
+          fragments: statement.fragments.map(fragment => 
+            typeof fragment === "string" ? this.substituteInString(fragment, params) : fragment
+          )
+        };
+      } else if (statement.text) {
+        // Substitute parameters in text strings
+        return {
+          ...statement,
+          text: this.substituteInString(statement.text, params)
+        };
+      } else {
+        // Return statement as-is for other types
+        return statement;
+      }
+    });
+  }
+
+  substituteInString(text, params) {
+    let result = text;
+    for (const [paramName, paramValue] of Object.entries(params)) {
+      // Replace all occurrences of {paramName} with paramValue
+      const regex = new RegExp(`\\{${paramName}\\}`, 'g');
+      result = result.replace(regex, paramValue);
+    }
+    return result;
   }
 
   macroToRegex(macroDef) {

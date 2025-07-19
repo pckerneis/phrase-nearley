@@ -22,3 +22,9 @@ in order to login as {user}:
 visit "http://localhost:8080"
 login as "bob"
 ```
+
+## TODO
+
+- [] Expand macro calls and substitute parameters
+- [] Detect cyclic calls
+- [] Escape "{}" in strings

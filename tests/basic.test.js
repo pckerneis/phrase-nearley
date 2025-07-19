@@ -31,7 +31,7 @@ describe("DSL Grammar Tests", () => {
 
   describe("Element Actions", () => {
     it("should parse click with identifier containing digits", () => {
-      const result = parse("click <button2>")[0];
+      const result = parse("click <button2>").original[0];
       assert.deepStrictEqual(result, {
         type: "click",
         target: "button2",
@@ -39,7 +39,7 @@ describe("DSL Grammar Tests", () => {
     });
 
     it("should parse click with multi-identifier and digits", () => {
-      const result = parse("click <Form2 Submit Button3>")[0];
+      const result = parse("click <Form2 Submit Button3>").original[0];
       assert.deepStrictEqual(result, {
         type: "click",
         target: "Form2 Submit Button3",
@@ -55,7 +55,7 @@ describe("DSL Grammar Tests", () => {
       assert.throws(() => parse("click Login Button>"), Error);
     });
     it("should parse click with single identifier", () => {
-      const result = parse("click <foo>")[0];
+      const result = parse("click <foo>").original[0];
       assert.deepStrictEqual(result, {
         type: "click",
         target: "foo",
@@ -63,7 +63,7 @@ describe("DSL Grammar Tests", () => {
     });
 
     it("should parse click with multi-identifier", () => {
-      const result = parse("click <Login Button>")[0];
+      const result = parse("click <Login Button>").original[0];
       assert.deepStrictEqual(result, {
         type: "click",
         target: "Login Button",
@@ -71,7 +71,7 @@ describe("DSL Grammar Tests", () => {
     });
 
     it("should parse click with three-part identifier", () => {
-      const result = parse("click <Submit Login Form>")[0];
+      const result = parse("click <Submit Login Form>").original[0];
       assert.deepStrictEqual(result, {
         type: "click",
         target: "Submit Login Form",
@@ -87,7 +87,7 @@ describe("DSL Grammar Tests", () => {
 
   describe("String Actions", () => {
     it("should parse type with special characters", () => {
-      const result = parse('type "hello@world.com"')[0];
+      const result = parse('type "hello@world.com"').original[0];
       assert.deepStrictEqual(result, {
         type: "type",
         text: "hello@world.com",
@@ -95,7 +95,7 @@ describe("DSL Grammar Tests", () => {
     });
 
     it("should parse type with numbers and punctuation", () => {
-      const result = parse('type "123!@#$%^&*()"')[0];
+      const result = parse('type "123!@#$%^&*()"').original[0];
       assert.deepStrictEqual(result, {
         type: "type",
         text: "123!@#$%^&*()",
@@ -110,7 +110,7 @@ describe("DSL Grammar Tests", () => {
       assert.throws(() => parse('type "\\x"'), Error);
     });
     it("should parse type with string", () => {
-      const result = parse('type "hello world"')[0];
+      const result = parse('type "hello world"').original[0];
       assert.deepStrictEqual(result, {
         type: "type",
         text: "hello world",
@@ -118,7 +118,7 @@ describe("DSL Grammar Tests", () => {
     });
 
     it("should parse type with empty string", () => {
-      const result = parse('type ""')[0];
+      const result = parse('type ""').original[0];
       assert.deepStrictEqual(result, {
         type: "type",
         text: "",
@@ -126,7 +126,7 @@ describe("DSL Grammar Tests", () => {
     });
 
     it("should parse type with escaped quotes", () => {
-      const result = parse('type "hello \\"world\\""')[0];
+      const result = parse('type "hello \\"world\\""').original[0];
       assert.deepStrictEqual(result, {
         type: "type",
         text: 'hello \\"world\\"',
@@ -139,7 +139,7 @@ describe("DSL Grammar Tests", () => {
       const input = `click <Login Button>
 type "hello"
 click <submit>`;
-      const results = parse(input);
+      const results = parse(input).original;
       assert.equal(results.length, 3);
     });
 
@@ -151,7 +151,7 @@ type "hello"
 click <submit>
 
 `;
-      const results = parse(input);
+      const results = parse(input).original;
       assert.equal(results.length, 3);
     });
 
@@ -161,7 +161,7 @@ click <submit>
 click <Login Button>
 type "hello"
 click <submit>`;
-      const results = parse(input);
+      const results = parse(input).original;
       assert.equal(results.length, 3);
     });
 
@@ -171,7 +171,7 @@ type "hello"
 click <submit>
 
 `;
-      const results = parse(input);
+      const results = parse(input).original;
       assert.equal(results.length, 3);
     });
 
@@ -181,7 +181,7 @@ click <Submit Button>
 type "password123"
 click <login>
 type "Hello, World!"`;
-      const results = parse(input);
+      const results = parse(input).original;
       assert.equal(results.length, 5);
       assert.equal(results[0].type, "type");
       assert.equal(results[1].type, "click");
@@ -202,7 +202,7 @@ click <submit>`;
 type "hello"
 click <submit>`;
       try {
-        const results = parse(input);
+        const results = parse(input).original;
         console.log("Parsed results:", JSON.stringify(results, null, 2));
         assert.equal(results.length, 3);
         assert.equal(results[0].type, "click");

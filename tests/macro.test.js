@@ -36,7 +36,7 @@ in order to login as {user} with password {pwd}:
   click <loginField>
   type "{user}"
   click <passwordField>
-  type "{pwd}"`)[0];
+  type "{pwd}"`).original[0];
 
       assert.deepStrictEqual(result, {
         type: "macro",
@@ -68,7 +68,7 @@ in order to login {user} {pwd}:
   click <loginField>
   type "{user}"
   click <passwordField>
-  type "{pwd}"`)[0];
+  type "{pwd}"`).original[0];
 
       assert.deepStrictEqual(result, {
         type: "macro",
@@ -94,7 +94,7 @@ in order to login {user} {pwd}:
     it("should parse macro", () => {
       const result = parse(`
 in order to login:
-  click <loginButton>`)[0];
+  click <loginButton>`).original[0];
       assert.deepStrictEqual(result, {
         header: ["login"],
         params: [],
@@ -114,7 +114,7 @@ in order to login:
   click <loginButton>
   
   type "toto"
-`)[0];
+`).original[0];
       assert.deepStrictEqual(result, {
         header: ["login"],
         params: [],
@@ -138,7 +138,7 @@ in order to login:
   click <loginButton>
 
   type "toto"
-`)[0];
+`).original[0];
       assert.deepStrictEqual(result, {
         header: ["login"],
         params: [],
@@ -162,7 +162,7 @@ in order to login:
   click <loginButton>
   type "toto"
 type "foo"
-`);
+`).original;
       assert.deepStrictEqual(result, [
         {
           header: ["login"],
@@ -191,7 +191,7 @@ type "foo"
     it("should parse macro parameters", () => {
       const result = parse(`
 in order to login as {username}:
- click <loginButton>`)[0];
+ click <loginButton>`).original[0];
 
       assert.deepStrictEqual(result, {
         header: ["login", "as", { param: "username" }],
@@ -224,7 +224,7 @@ in order to login:
   click <loginButton>
 
 login
-`);
+`).original;
 
       assert.deepStrictEqual(result[1].resolvedMacro, result[0]);
       assert.deepStrictEqual(result[1].resolvedParams, {});
@@ -236,7 +236,7 @@ in order to login as {username}:
   click <loginButton>
 
 login as "foo"
-`);
+`).original;
 
       assert.deepStrictEqual(result[1].resolvedMacro, result[0]);
       assert.deepStrictEqual(result[1].resolvedParams, {
@@ -244,22 +244,25 @@ login as "foo"
       });
     });
 
-    it("should match macro call within another macro", () => {
+    it("should expand nested macro calls", () => {
       const result = parse(`
 in order to login as {username}:
   click <loginButton>
+  type "{username}"
 
 in order to foo:
   login as "foo"
-`);
 
-      assert.deepStrictEqual(result[1].body[0].resolvedMacro, result[0]);
-      assert.deepStrictEqual(result[1].body[0].resolvedParams, {
-        username: "foo",
-      });
+foo
+`).expanded;
+
+      assert.deepStrictEqual(result, [
+        { type: "click", target: "loginButton" },
+        { type: "type", text: "foo", },
+      ]);
     });
 
-    it.skip("should reject cyclic macro calls", () => {
+    it("should reject cyclic macro calls", () => {
       assert.throws(
         () =>
           parse(`
@@ -271,9 +274,9 @@ in order to connect as {username}:
 
 in order to foo:
   connect as "hello"
-`),
-        "Cyclic macro call detected.",
-      );
+
+foo
+`));
     });
   });
 });
