@@ -2,14 +2,14 @@ const assertionsWithString = [
   {
     assertion: "page title to have text",
     description: "Assert that the web page title match exactly the given text",
-    example: "expect page title to have text \"Website\"",
+    example: 'expect page title to have text "Website"',
   },
   {
     assertion: "page title to contain text",
     description: "Assert that the web page title contains the given text",
-    example: "expect page title to contain text \"Website\"",
-  }
-]
+    example: 'expect page title to contain text "Website"',
+  },
+];
 
 const assertionsOnElementWithString = [
   {
@@ -80,4 +80,8 @@ const assertionsOnElement = [
   },
 ];
 
-module.exports = { assertionsWithString, assertionsOnElementWithString, assertionsOnElement };
+module.exports = {
+  assertionsWithString,
+  assertionsOnElementWithString,
+  assertionsOnElement,
+};
