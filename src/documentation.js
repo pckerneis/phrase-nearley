@@ -1,7 +1,7 @@
-const { actionsOnElement, actionsWithString } = require("./actions");
+const { actionsOnElement, actionsWithString } = require("./parser/actions");
 const path = require("path");
 const fs = require("fs");
-const { assertionsWithString, assertionsOnElement } = require("./assertions");
+const { assertionsWithString, assertionsOnElement } = require("./parser/assertions");
 
 const docTemplateFile = path.join(__dirname, "language-doc-template.md");
 let docTemplateContent = fs.readFileSync(docTemplateFile, "utf-8");
