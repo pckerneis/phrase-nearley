@@ -298,19 +298,19 @@ foo
       const result = parse(`
 in order to fill $bar with {baz}:
   click <$bar input>
-  type "{baz}"
+  type "{baz}baz"
 
-fill <baz> with "foobar"`).expanded;
+fill <bar baz> with "foobar"`).expanded;
 
       assert.deepStrictEqual(result, [{
         type: 'action',
         action: 'click',
-        target: 'baz input',
+        target: 'bar baz input',
       },
         {
           type: 'action',
           action: 'type',
-          text: 'foobar',
+          text: 'foobarbaz',
         }]);
     });
 

@@ -39,4 +39,4 @@ const actionsWithString = [
   },
 ];
 
-export { actionsOnElement, actionsWithString };
+module.exports = { actionsOnElement, actionsWithString };

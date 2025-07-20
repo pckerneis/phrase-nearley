@@ -258,6 +258,12 @@ class Parser {
           ...statement,
           text: this.substituteInString(statement.text, params),
         };
+      } else if (statement.target) {
+        // Substitute parameters in element targets
+        return {
+          ...statement,
+          target: this.substituteInTarget(statement.target, params),
+        };
       } else {
         // Return statement as-is for other types
         return statement;
@@ -321,6 +327,19 @@ class Parser {
       }
     }
 
+    return result;
+  }
+
+  substituteInTarget(target, params) {
+    // Substitute element parameters ($param) in target strings
+    let result = target;
+    
+    for (const [paramName, paramValue] of Object.entries(params)) {
+      // Replace all occurrences of $paramName with paramValue
+      const regex = new RegExp(`\\$${paramName}\\b`, 'g');
+      result = result.replace(regex, paramValue);
+    }
+    
     return result;
   }
 
