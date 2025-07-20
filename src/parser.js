@@ -85,7 +85,14 @@ class Parser {
       },
       macroIdentifierFragment_parameter: (fragment) => fragment.eval(),
       macroIdentifierFragment_identifier: (fragment) => fragment.sourceString,
-      macroParameter: (_open, name, _close) => ({ param: name.sourceString }),
+      macroParameter_string: (_open, name, _close) => ({
+        param: name.sourceString,
+        type: "string",
+      }),
+      macroParameter_target: (param) => ({
+        param: param.eval(),
+        type: "element",
+      }),
       macroBody: (statements) =>
         statements.asIteration().children.map((c) => c.eval()),
       indentedStatement: (_sp, statement) => statement.eval(),
@@ -102,6 +109,8 @@ class Parser {
       },
       macroCallFragment_identifier: (id) => id.sourceString,
       macroCallFragment_string: (string) => string.sourceString,
+      macroCallFragment_target: (target) => target.eval(),
+      identifierParam: (_dollar, name) => name.sourceString,
     });
   }
 

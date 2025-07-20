@@ -30,7 +30,7 @@ in order to login as {bar}:
   });
 
   describe("Valid macros", () => {
-    it("should parse macro with flexible header and parameters", () => {
+    it("should parse macro with string parameters", () => {
       const result = parse(`
 in order to login as {user} with password {pwd}:
   click <loginField>
@@ -45,11 +45,13 @@ in order to login as {user} with password {pwd}:
           "as",
           {
             param: "user",
+            type: "string",
           },
           "with",
           "password",
           {
             param: "pwd",
+            type: "string",
           },
         ],
         params: ["user", "pwd"],
@@ -59,6 +61,25 @@ in order to login as {user} with password {pwd}:
           { type: "action", action: "click", target: "passwordField" },
           { type: "action", action: "type", text: "{pwd}" },
         ],
+      });
+    });
+
+    it("should parse macro with target parameter", () => {
+      const result = parse(`
+in order to foo $bar:
+  click <foo $bar>`).original[0];
+
+      assert.deepStrictEqual(result, {
+        type: "macro",
+        header: [
+          "foo",
+          {
+            param: "bar",
+            type: "element",
+          },
+        ],
+        params: ["bar"],
+        body: [{ type: "action", action: "click", target: "foo $bar" }],
       });
     });
 
@@ -76,9 +97,11 @@ in order to login {user} {pwd}:
           "login",
           {
             param: "user",
+            type: "string",
           },
           {
             param: "pwd",
+            type: "string",
           },
         ],
         params: ["user", "pwd"],
@@ -202,7 +225,7 @@ in order to login as {username}:
  click <loginButton>`).original[0];
 
       assert.deepStrictEqual(result, {
-        header: ["login", "as", { param: "username" }],
+        header: ["login", "as", { param: "username", type: "string" }],
         params: ["username"],
         type: "macro",
         body: [

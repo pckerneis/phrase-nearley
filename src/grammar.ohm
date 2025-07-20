@@ -17,7 +17,8 @@ Phrase {
   assertion = "expect" space+ element space+ "to have text" space+ string
 
   element = "<" space* multiIdentifier space* ">"
-  multiIdentifier = nonemptyListOf<identifier, space+>
+  multiIdentifier = nonemptyListOf<paramOrIdentifier, space+>
+  paramOrIdentifier = identifier | identifierParam
 
   // Macro
   macro = macroHeader nl+ macroBody
@@ -25,7 +26,8 @@ Phrase {
   macroIdentifier = identifier (space+ listOf<macroIdentifierFragment, space+>)?
   macroIdentifierFragment = macroParameter -- parameter
     | identifier -- identifier
-  macroParameter = "{" identifier "}"
+  macroParameter = "{" identifier "}" -- string
+    | identifierParam -- target
   inOrderTo = "in order to"
   macroBody = nonemptyListOf<indentedStatement, emptyLine>
   indentedStatement = indent (statement | macroCall)
@@ -34,6 +36,9 @@ Phrase {
   macroCall = identifier (space+ listOf<macroCallFragment, space+>)?
   macroCallFragment = identifier -- identifier
     | string -- string
+    | element -- target
+
+  identifierParam = "$" identifier
 
   // Lexical rules
   identifier = letter (alnum | "_")*
@@ -42,7 +47,6 @@ Phrase {
   escaped = "\\" validEscape
   validEscape = "\"" | "\\" | "{" | "}"
   unescaped = ~("\"" | "\\") any
-
 
   nl = "\n" | "\r\n" | "\r"
   space := ~nl "\x00".."\x20"
