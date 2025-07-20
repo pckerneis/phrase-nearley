@@ -133,7 +133,7 @@ class Parser {
   registerMacros(statements) {
     const getMacroHeaderWithoutParameters = (statement) =>
       statement.header
-        .map((fragment) => ((typeof fragment === "object") ? "{}" : fragment))
+        .map((fragment) => (typeof fragment === "object" ? "{}" : fragment))
         .join(" ");
 
     statements.forEach((statement) => {
@@ -252,22 +252,25 @@ class Parser {
               : fragment,
           ),
         };
-      } else if (statement.text) {
+      }
+
+      if (statement.text) {
         // Substitute parameters in text strings
-        return {
+        statement = {
           ...statement,
           text: this.substituteInString(statement.text, params),
         };
-      } else if (statement.target) {
+      }
+
+      if (statement.target) {
         // Substitute parameters in element targets
-        return {
+        statement = {
           ...statement,
           target: this.substituteInTarget(statement.target, params),
         };
-      } else {
-        // Return statement as-is for other types
-        return statement;
       }
+
+      return statement;
     });
   }
 
@@ -333,27 +336,27 @@ class Parser {
   substituteInTarget(target, params) {
     // Substitute element parameters ($param) in target strings
     let result = target;
-    
+
     for (const [paramName, paramValue] of Object.entries(params)) {
       // Replace all occurrences of $paramName with paramValue
-      const regex = new RegExp(`\\$${paramName}\\b`, 'g');
+      const regex = new RegExp(`\\$${paramName}\\b`, "g");
       result = result.replace(regex, paramValue);
     }
-    
+
     return result;
   }
 
   macroToRegex(macro) {
     const regexParts = macro.header.map((part) => {
-      if (typeof part === 'string') {
+      if (typeof part === "string") {
         // Escape the literal text
         return part
-            .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-            .trim()
-            .replace(/\s+/g, "\\s+");
-      } else if (part.type === 'element') {
+          .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+          .trim()
+          .replace(/\s+/g, "\\s+");
+      } else if (part.type === "element") {
         // Match identifiers between angle brackets
-        return '<([^>]+)>';
+        return "<([^>]+)>";
       } else {
         // Match quoted string for parameter
         return '"([^"]+)"';
@@ -364,7 +367,9 @@ class Parser {
   }
 
   matchMacroCall(macro, macroCall) {
-    const paramNames = macro.header.filter(f => typeof f === 'object').map(f => f.param);
+    const paramNames = macro.header
+      .filter((f) => typeof f === "object")
+      .map((f) => f.param);
     const regex = this.macroToRegex(macro);
     const match = macroCall.match(regex);
     if (!match) return null;

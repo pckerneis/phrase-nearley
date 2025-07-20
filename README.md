@@ -19,17 +19,16 @@ in order to login as {user}:
   type "secret"
   click <Login_button>
 
-for $element to greet {username}:
+in order to check $element greets {username}:
   expect $element to have text "Hello, {username}!"
 
 visit "http://localhost:8080"
 login as "bob"
-expect <greetings_message> greet "bob"
+check <greetings_message> greets "bob"
 ```
 
 ## TODO
 
-- [] Element parameters in actions
 - [] Add assertions
 - [] Custom assertions
 - [] Add Playwright runner
