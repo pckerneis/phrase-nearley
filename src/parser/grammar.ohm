@@ -14,10 +14,12 @@ Phrase {
   actionWithStringType = {{actionWithStringTypes}}
 
   // Assertions
-  assertion = assertionWithString | assertionOnElement
+  assertion = assertionWithString | assertionOnElementWithString | assertionOnElement
   assertionOnElement = "expect" space+ element space+ assertionOnElementType
   assertionOnElementType = {{assertionOnElementTypes}}
-  assertionWithString = "expect" space+ element space+ assertionWithStringType space+ string
+  assertionOnElementWithString = "expect" space+ element space+ assertionOnElementWithStringType space+ string
+  assertionOnElementWithStringType = {{assertionOnElementWithStringTypes}}
+  assertionWithString = "expect" space+ assertionWithStringType space+ string
   assertionWithStringType = {{assertionWithStringTypes}}
 
   element = "<" space* multiIdentifier space* ">"

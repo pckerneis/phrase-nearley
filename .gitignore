@@ -20,5 +20,8 @@ build/
 .DS_Store
 Thumbs.db
 
-# Generated files
-src/grammar.js
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

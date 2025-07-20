@@ -1,7 +1,10 @@
 const { actionsOnElement, actionsWithString } = require("./parser/actions");
 const path = require("path");
 const fs = require("fs");
-const { assertionsWithString, assertionsOnElement } = require("./parser/assertions");
+const {
+  assertionsOnElementWithString,
+  assertionsOnElement, assertionsWithString,
+} = require("./parser/assertions");
 
 const docTemplateFile = path.join(__dirname, "language-doc-template.md");
 let docTemplateContent = fs.readFileSync(docTemplateFile, "utf-8");
@@ -20,7 +23,7 @@ const actionRows = allActions
 
 docTemplateContent = docTemplateContent.replace("{{actionRows}}", actionRows);
 
-const allAssertions = [...assertionsWithString, ...assertionsOnElement];
+const allAssertions = [...assertionsWithString, ...assertionsOnElementWithString, ...assertionsOnElement];
 
 allAssertions.sort((a, b) => {
   return a.assertion.localeCompare(b.assertion);
