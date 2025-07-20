@@ -102,6 +102,16 @@ describe("DSL Grammar Tests", () => {
         text: "hello, bob!",
       });
     });
+
+    it("should parse not to exist assertion", () => {
+      const result = parse("expect <greetings_message> not to exist")
+        .original[0];
+      assert.deepStrictEqual(result, {
+        type: "assertion",
+        assertion: "not to exist",
+        target: "greetings_message",
+      });
+    });
   });
 
   describe("String Actions", () => {

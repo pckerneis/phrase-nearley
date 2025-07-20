@@ -6,12 +6,12 @@ const actionsOnElement = [
   },
   {
     action: "double-click",
-    description: "Double click an element.",
+    description: "Double-click an element.",
     example: "double-click <login_button>",
   },
   {
     action: "right-click",
-    description: "Right click an element.",
+    description: "Right-click an element.",
     example: "right-click <login_button>",
   },
   {

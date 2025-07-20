@@ -14,7 +14,10 @@ Phrase {
   actionWithStringType = {{actionWithStringTypes}}
 
   // Assertions
-  assertion = "expect" space+ element space+ assertionWithStringType space+ string
+  assertion = assertionWithString | assertionOnElement
+  assertionOnElement = "expect" space+ element space+ assertionOnElementType
+  assertionOnElementType = {{assertionOnElementTypes}}
+  assertionWithString = "expect" space+ element space+ assertionWithStringType space+ string
   assertionWithStringType = {{assertionWithStringTypes}}
 
   element = "<" space* multiIdentifier space* ">"

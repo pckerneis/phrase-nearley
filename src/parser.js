@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const ohm = require("ohm-js");
 const { actionsOnElement, actionsWithString } = require("./actions");
-const { assertionsWithString } = require("./assertions");
+const { assertionsWithString, assertionsOnElement } = require("./assertions");
 
 class Parser {
   constructor() {
@@ -21,6 +21,10 @@ class Parser {
       .replace(
         "{{assertionWithStringTypes}}",
         assertionsWithString.map((a) => `"${a.assertion}"`).join(" | "),
+      )
+      .replace(
+        "{{assertionOnElementTypes}}",
+        assertionsOnElement.map((a) => `"${a.assertion}"`).join(" | "),
       );
 
     this.grammar = ohm.grammar(grammarContent);
@@ -50,7 +54,22 @@ class Parser {
       actionOnElement: (click) => click.sourceString,
       actionWithString: (type) => type.eval(),
       actionWithStringType: (type) => type.sourceString,
-      assertion: (_expect, _sp, element, _sp2, assertion, _sp3, string) => {
+      assertionOnElement: (_expect, _sp, element, _sp2, assertion) => {
+        return {
+          type: "assertion",
+          target: element.eval(),
+          assertion: assertion.sourceString,
+        };
+      },
+      assertionWithString: (
+        _expect,
+        _sp,
+        element,
+        _sp2,
+        assertion,
+        _sp3,
+        string,
+      ) => {
         return {
           type: "assertion",
           target: element.eval(),

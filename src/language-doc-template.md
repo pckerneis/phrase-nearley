@@ -2,12 +2,10 @@
 
 | keyword | description | example |
 | ------- | ----------- | ------- |
-
 {{actionRows}}
 
 ## Built-in Assertions
 
 | keyword | description | example |
 | ------- | ----------- | ------- |
-
 {{assertionRows}}
