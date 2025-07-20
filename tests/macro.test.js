@@ -1,5 +1,5 @@
-const { Parser } = require("../src/parser");
-const assert = require("assert");
+const {Parser} = require('../src/parser');
+const assert = require('assert');
 
 function parse(input) {
   try {
@@ -10,15 +10,15 @@ function parse(input) {
   }
 }
 
-describe("DSL Macro Tests", () => {
-  describe("Invalid macros", () => {
-    it("should fail empty macro body", () => {
-      assert.throws(() => parse("in order to login:"), Error);
+describe('DSL Macro Tests', () => {
+  describe('Invalid macros', () => {
+    it('should fail empty macro body', () => {
+      assert.throws(() => parse('in order to login:'), Error);
     });
 
-    it("should reject duplicate macro headers", () => {
+    it('should reject duplicate macro headers', () => {
       assert.throws(() =>
-        parse(`
+          parse(`
 in order to login as {foo}:
   click <foo>
 
@@ -29,8 +29,8 @@ in order to login as {bar}:
     });
   });
 
-  describe("Valid macros", () => {
-    it("should parse macro with string parameters", () => {
+  describe('Valid macros', () => {
+    it('should parse macro with string parameters', () => {
       const result = parse(`
 in order to login as {user} with password {pwd}:
   click <loginField>
@@ -39,51 +39,51 @@ in order to login as {user} with password {pwd}:
   type "{pwd}"`).original[0];
 
       assert.deepStrictEqual(result, {
-        type: "macro",
+        type: 'macro',
         header: [
-          "login",
-          "as",
+          'login',
+          'as',
           {
-            param: "user",
-            type: "string",
+            param: 'user',
+            type: 'string',
           },
-          "with",
-          "password",
+          'with',
+          'password',
           {
-            param: "pwd",
-            type: "string",
+            param: 'pwd',
+            type: 'string',
           },
         ],
-        params: ["user", "pwd"],
+        params: ['user', 'pwd'],
         body: [
-          { type: "action", action: "click", target: "loginField" },
-          { type: "action", action: "type", text: "{user}" },
-          { type: "action", action: "click", target: "passwordField" },
-          { type: "action", action: "type", text: "{pwd}" },
+          {type: 'action', action: 'click', target: 'loginField'},
+          {type: 'action', action: 'type', text: '{user}'},
+          {type: 'action', action: 'click', target: 'passwordField'},
+          {type: 'action', action: 'type', text: '{pwd}'},
         ],
       });
     });
 
-    it("should parse macro with target parameter", () => {
+    it('should parse macro with target parameter', () => {
       const result = parse(`
 in order to foo $bar:
   click <foo $bar>`).original[0];
 
       assert.deepStrictEqual(result, {
-        type: "macro",
+        type: 'macro',
         header: [
-          "foo",
+          'foo',
           {
-            param: "bar",
-            type: "element",
+            param: 'bar',
+            type: 'element',
           },
         ],
-        params: ["bar"],
-        body: [{ type: "action", action: "click", target: "foo $bar" }],
+        params: ['bar'],
+        body: [{type: 'action', action: 'click', target: 'foo $bar'}],
       });
     });
 
-    it("should parse macro with minimal header", () => {
+    it('should parse macro with minimal header', () => {
       const result = parse(`
 in order to login {user} {pwd}:
   click <loginField>
@@ -92,47 +92,47 @@ in order to login {user} {pwd}:
   type "{pwd}"`).original[0];
 
       assert.deepStrictEqual(result, {
-        type: "macro",
+        type: 'macro',
         header: [
-          "login",
+          'login',
           {
-            param: "user",
-            type: "string",
+            param: 'user',
+            type: 'string',
           },
           {
-            param: "pwd",
-            type: "string",
+            param: 'pwd',
+            type: 'string',
           },
         ],
-        params: ["user", "pwd"],
+        params: ['user', 'pwd'],
         body: [
-          { type: "action", action: "click", target: "loginField" },
-          { type: "action", action: "type", text: "{user}" },
-          { type: "action", action: "click", target: "passwordField" },
-          { type: "action", action: "type", text: "{pwd}" },
+          {type: 'action', action: 'click', target: 'loginField'},
+          {type: 'action', action: 'type', text: '{user}'},
+          {type: 'action', action: 'click', target: 'passwordField'},
+          {type: 'action', action: 'type', text: '{pwd}'},
         ],
       });
     });
 
-    it("should parse macro", () => {
+    it('should parse macro', () => {
       const result = parse(`
 in order to login:
   click <loginButton>`).original[0];
       assert.deepStrictEqual(result, {
-        header: ["login"],
+        header: ['login'],
         params: [],
-        type: "macro",
+        type: 'macro',
         body: [
           {
-            type: "action",
-            action: "click",
-            target: "loginButton",
+            type: 'action',
+            action: 'click',
+            target: 'loginButton',
           },
         ],
       });
     });
 
-    it("should accept non empty lines in macro body", () => {
+    it('should accept non empty lines in macro body', () => {
       const result = parse(`
 in order to login:
   click <loginButton>
@@ -140,25 +140,25 @@ in order to login:
   type "toto"
 `).original[0];
       assert.deepStrictEqual(result, {
-        header: ["login"],
+        header: ['login'],
         params: [],
-        type: "macro",
+        type: 'macro',
         body: [
           {
-            type: "action",
-            action: "click",
-            target: "loginButton",
+            type: 'action',
+            action: 'click',
+            target: 'loginButton',
           },
           {
-            type: "action",
-            action: "type",
-            text: "toto",
+            type: 'action',
+            action: 'type',
+            text: 'toto',
           },
         ],
       });
     });
 
-    it("should accept empty lines in macro body", () => {
+    it('should accept empty lines in macro body', () => {
       const result = parse(`
 in order to login:
   click <loginButton>
@@ -166,25 +166,25 @@ in order to login:
   type "toto"
 `).original[0];
       assert.deepStrictEqual(result, {
-        header: ["login"],
+        header: ['login'],
         params: [],
-        type: "macro",
+        type: 'macro',
         body: [
           {
-            type: "action",
-            action: "click",
-            target: "loginButton",
+            type: 'action',
+            action: 'click',
+            target: 'loginButton',
           },
           {
-            type: "action",
-            action: "type",
-            text: "toto",
+            type: 'action',
+            action: 'type',
+            text: 'toto',
           },
         ],
       });
     });
 
-    it("should parse root statement after macro body", () => {
+    it('should parse root statement after macro body', () => {
       const result = parse(`
 in order to login:
   click <loginButton>
@@ -193,64 +193,64 @@ type "foo"
 `).original;
       assert.deepStrictEqual(result, [
         {
-          header: ["login"],
+          header: ['login'],
           params: [],
-          type: "macro",
+          type: 'macro',
           body: [
             {
-              type: "action",
-              action: "click",
-              target: "loginButton",
+              type: 'action',
+              action: 'click',
+              target: 'loginButton',
             },
             {
-              type: "action",
-              action: "type",
-              text: "toto",
+              type: 'action',
+              action: 'type',
+              text: 'toto',
             },
           ],
         },
         {
-          type: "action",
-          action: "type",
-          text: "foo",
+          type: 'action',
+          action: 'type',
+          text: 'foo',
         },
       ]);
     });
   });
 
-  describe("Macro parameters", () => {
-    it("should parse macro parameters", () => {
+  describe('Macro parameters', () => {
+    it('should parse macro parameters', () => {
       const result = parse(`
 in order to login as {username}:
  click <loginButton>`).original[0];
 
       assert.deepStrictEqual(result, {
-        header: ["login", "as", { param: "username", type: "string" }],
-        params: ["username"],
-        type: "macro",
+        header: ['login', 'as', {param: 'username', type: 'string'}],
+        params: ['username'],
+        type: 'macro',
         body: [
           {
-            type: "action",
-            action: "click",
-            target: "loginButton",
+            type: 'action',
+            action: 'click',
+            target: 'loginButton',
           },
         ],
       });
     });
 
-    it("should reject macro identifier if starting with parameter", () => {
+    it('should reject macro identifier if starting with parameter', () => {
       assert.throws(
-        () =>
-          parse(`
+          () =>
+              parse(`
 in order to {username} login:
  click <loginButton>`),
-        Error,
+          Error,
       );
     });
   });
 
-  describe("Macro calls", () => {
-    it("should match simple macro calls", () => {
+  describe('Macro calls', () => {
+    it('should match simple macro calls', () => {
       const result = parse(`
 in order to login:
   click <loginButton>
@@ -262,7 +262,7 @@ login
       assert.deepStrictEqual(result[1].resolvedParams, {});
     });
 
-    it("should match macro call with one parameter", () => {
+    it('should match macro call with one parameter', () => {
       const result = parse(`
 in order to login as {username}:
   click <loginButton>
@@ -272,11 +272,11 @@ login as "foo"
 
       assert.deepStrictEqual(result[1].resolvedMacro, result[0]);
       assert.deepStrictEqual(result[1].resolvedParams, {
-        username: "foo",
+        username: 'foo',
       });
     });
 
-    it("should expand nested macro calls", () => {
+    it('should expand nested macro calls', () => {
       const result = parse(`
 in order to login as {username}:
   click <loginButton>
@@ -289,14 +289,34 @@ foo
 `).expanded;
 
       assert.deepStrictEqual(result, [
-        { type: "action", action: "click", target: "loginButton" },
-        { type: "action", action: "type", text: "foo" },
+        {type: 'action', action: 'click', target: 'loginButton'},
+        {type: 'action', action: 'type', text: 'foo'},
       ]);
     });
 
-    it("should reject cyclic macro calls", () => {
+    it('should expand macro with target parameter', () => {
+      const result = parse(`
+in order to fill $bar with {baz}:
+  click <$bar input>
+  type "{baz}"
+
+fill <baz> with "foobar"`).expanded;
+
+      assert.deepStrictEqual(result, [{
+        type: 'action',
+        action: 'click',
+        target: 'baz input',
+      },
+        {
+          type: 'action',
+          action: 'type',
+          text: 'foobar',
+        }]);
+    });
+
+    it('should reject cyclic macro calls', () => {
       assert.throws(() =>
-        parse(`
+          parse(`
 in order to login as {username}:
   foo
 
@@ -312,9 +332,9 @@ foo
     });
   });
 
-  describe("Cycle detection", () => {
-    it("should detect direct cycles with clear error message", () => {
-      let errorMessage = "";
+  describe('Cycle detection', () => {
+    it('should detect direct cycles with clear error message', () => {
+      let errorMessage = '';
       try {
         parse(`
 in order to macro a:
@@ -325,24 +345,24 @@ in order to macro b:
 
 macro a
 `);
-        assert.fail("Should have thrown a cycle detection error");
+        assert.fail('Should have thrown a cycle detection error');
       } catch (error) {
         errorMessage = error.message;
       }
 
       // Verify the error message shows the complete cycle path
       assert(
-        errorMessage.includes("Cyclic macro call detected"),
-        "Should mention cyclic macro call",
+          errorMessage.includes('Cyclic macro call detected'),
+          'Should mention cyclic macro call',
       );
       assert(
-        errorMessage.includes("macro a -> macro b -> macro a"),
-        `Should show complete cycle path, got: ${errorMessage}`,
+          errorMessage.includes('macro a -> macro b -> macro a'),
+          `Should show complete cycle path, got: ${errorMessage}`,
       );
     });
 
-    it("should detect indirect cycles with parameter details", () => {
-      let errorMessage = "";
+    it('should detect indirect cycles with parameter details', () => {
+      let errorMessage = '';
       try {
         parse(`
 in order to step {name}:
@@ -356,32 +376,32 @@ in order to perform {name}:
 
 step "test"
 `);
-        assert.fail("Should have thrown a cycle detection error");
+        assert.fail('Should have thrown a cycle detection error');
       } catch (error) {
         errorMessage = error.message;
       }
 
       // Verify the error message shows the complete cycle path with parameters
       assert(
-        errorMessage.includes("Cyclic macro call detected"),
-        "Should mention cyclic macro call",
+          errorMessage.includes('Cyclic macro call detected'),
+          'Should mention cyclic macro call',
       );
       assert(
-        errorMessage.includes("step {name}"),
-        "Should show macro with parameters",
+          errorMessage.includes('step {name}'),
+          'Should show macro with parameters',
       );
       assert(
-        errorMessage.includes("execute {name}"),
-        "Should show second macro in chain",
+          errorMessage.includes('execute {name}'),
+          'Should show second macro in chain',
       );
       assert(
-        errorMessage.includes("perform {name}"),
-        "Should show third macro in chain",
+          errorMessage.includes('perform {name}'),
+          'Should show third macro in chain',
       );
-      assert(errorMessage.includes("->"), "Should show call chain with arrows");
+      assert(errorMessage.includes('->'), 'Should show call chain with arrows');
     });
 
-    it("should allow valid recursive-like macros (no cycle)", () => {
+    it('should allow valid recursive-like macros (no cycle)', () => {
       const result = parse(`
 in order to login as {user}:
   click <loginField>
@@ -396,18 +416,18 @@ complete login as "jdoe"
 
       // Should successfully expand without throwing cycle error
       assert.strictEqual(result.expanded.length, 3);
-      assert.strictEqual(result.expanded[0].type, "action");
-      assert.strictEqual(result.expanded[0].action, "click");
-      assert.strictEqual(result.expanded[1].type, "action");
-      assert.strictEqual(result.expanded[1].action, "type");
-      assert.strictEqual(result.expanded[1].text, "jdoe");
-      assert.strictEqual(result.expanded[2].type, "action");
-      assert.strictEqual(result.expanded[2].action, "click");
+      assert.strictEqual(result.expanded[0].type, 'action');
+      assert.strictEqual(result.expanded[0].action, 'click');
+      assert.strictEqual(result.expanded[1].type, 'action');
+      assert.strictEqual(result.expanded[1].action, 'type');
+      assert.strictEqual(result.expanded[1].text, 'jdoe');
+      assert.strictEqual(result.expanded[2].type, 'action');
+      assert.strictEqual(result.expanded[2].action, 'click');
     });
   });
 
-  describe("Escape character support", () => {
-    it("should handle escaped braces in parameter substitution", () => {
+  describe('Escape character support', () => {
+    it('should handle escaped braces in parameter substitution', () => {
       const result = parse(`
 in order to show message for {name}:
   type "Hello \\{world\\} and {name}!"
@@ -416,12 +436,12 @@ show message for "Alice"
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].type, "action");
-      assert.strictEqual(result.expanded[0].action, "type");
-      assert.strictEqual(result.expanded[0].text, "Hello {world} and Alice!");
+      assert.strictEqual(result.expanded[0].type, 'action');
+      assert.strictEqual(result.expanded[0].action, 'type');
+      assert.strictEqual(result.expanded[0].text, 'Hello {world} and Alice!');
     });
 
-    it("should handle only escaped braces (no parameters)", () => {
+    it('should handle only escaped braces (no parameters)', () => {
       const result = parse(`
 in order to show brackets:
   type "These are literal braces: \\{ and \\}"
@@ -430,14 +450,14 @@ show brackets
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].action, "type");
+      assert.strictEqual(result.expanded[0].action, 'type');
       assert.strictEqual(
-        result.expanded[0].text,
-        "These are literal braces: { and }",
+          result.expanded[0].text,
+          'These are literal braces: { and }',
       );
     });
 
-    it("should handle multiple escaped braces in complex strings", () => {
+    it('should handle multiple escaped braces in complex strings', () => {
       const result = parse(`
 in order to show json for {data}:
   type "\\{\\\"key\\\": \\\"{data}\\\", \\\"literal\\\": \\\"\\{not_param\\}\\\"\\}"
@@ -446,14 +466,14 @@ show json for "test123"
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].action, "type");
+      assert.strictEqual(result.expanded[0].action, 'type');
       assert.strictEqual(
-        result.expanded[0].text,
-        '{"key": "test123", "literal": "{not_param}"}',
+          result.expanded[0].text,
+          '{"key": "test123", "literal": "{not_param}"}',
       );
     });
 
-    it("should not substitute parameters in escaped braces", () => {
+    it('should not substitute parameters in escaped braces', () => {
       const result = parse(`
 in order to test escaping {param}:
   type "Parameter: {param}, Escaped: \\{param\\}"
@@ -462,14 +482,14 @@ test escaping "value"
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].action, "type");
+      assert.strictEqual(result.expanded[0].action, 'type');
       assert.strictEqual(
-        result.expanded[0].text,
-        "Parameter: value, Escaped: {param}",
+          result.expanded[0].text,
+          'Parameter: value, Escaped: {param}',
       );
     });
 
-    it("should handle escaped backslash before parameter (double backslash)", () => {
+    it('should handle escaped backslash before parameter (double backslash)', () => {
       const result = parse(`
 in order to test double escape {param}:
   type "Value: \\\\{param}"
@@ -478,11 +498,11 @@ test double escape "test123"
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].action, "type");
-      assert.strictEqual(result.expanded[0].text, "Value: \\test123");
+      assert.strictEqual(result.expanded[0].action, 'type');
+      assert.strictEqual(result.expanded[0].text, 'Value: \\test123');
     });
 
-    it("should handle escaped backslash before escaped brace (triple backslash)", () => {
+    it('should handle escaped backslash before escaped brace (triple backslash)', () => {
       const result = parse(`
 in order to test triple escape {param}:
   type "Value: \\\\\\{param\\} and {param}"
@@ -491,14 +511,14 @@ test triple escape "test123"
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].action, "type");
+      assert.strictEqual(result.expanded[0].action, 'type');
       assert.strictEqual(
-        result.expanded[0].text,
-        "Value: \\{param} and test123",
+          result.expanded[0].text,
+          'Value: \\{param} and test123',
       );
     });
 
-    it("should handle quadruple backslash (two literal backslashes)", () => {
+    it('should handle quadruple backslash (two literal backslashes)', () => {
       const result = parse(`
 in order to test quad escape:
   type "Four backslashes: \\\\\\\\"
@@ -507,11 +527,11 @@ test quad escape
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].action, "type");
-      assert.strictEqual(result.expanded[0].text, "Four backslashes: \\\\");
+      assert.strictEqual(result.expanded[0].action, 'type');
+      assert.strictEqual(result.expanded[0].text, 'Four backslashes: \\\\');
     });
 
-    it("should handle mixed complex escape sequences", () => {
+    it('should handle mixed complex escape sequences', () => {
       const result = parse(`
 in order to test complex {param}:
   type "Escaped brace: \\{literal\\}, Parameter: {param}, Literal backslash: \\\\"
@@ -520,11 +540,11 @@ test complex "value"
 `);
 
       assert.strictEqual(result.expanded.length, 1);
-      assert.strictEqual(result.expanded[0].type, "action");
-      assert.strictEqual(result.expanded[0].action, "type");
+      assert.strictEqual(result.expanded[0].type, 'action');
+      assert.strictEqual(result.expanded[0].action, 'type');
       assert.strictEqual(
-        result.expanded[0].text,
-        "Escaped brace: {literal}, Parameter: value, Literal backslash: \\",
+          result.expanded[0].text,
+          'Escaped brace: {literal}, Parameter: value, Literal backslash: \\',
       );
     });
   });

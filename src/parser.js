@@ -109,7 +109,7 @@ class Parser {
       },
       macroCallFragment_identifier: (id) => id.sourceString,
       macroCallFragment_string: (string) => string.sourceString,
-      macroCallFragment_target: (target) => target.eval(),
+      macroCallFragment_target: (target) => `<${target.eval()}>`,
       identifierParam: (_dollar, name) => name.sourceString,
     });
   }
@@ -133,7 +133,7 @@ class Parser {
   registerMacros(statements) {
     const getMacroHeaderWithoutParameters = (statement) =>
       statement.header
-        .map((fragment) => (typeof fragment === "object" ? "{}" : fragment))
+        .map((fragment) => ((typeof fragment === "object") ? "{}" : fragment))
         .join(" ");
 
     statements.forEach((statement) => {
@@ -181,13 +181,7 @@ class Parser {
     let resolvedParams = null;
 
     for (const macro of this.macros) {
-      const macroDef = macro.header
-        .map((fragment) =>
-          typeof fragment === "object" ? `{${fragment.param}}` : fragment,
-        )
-        .join(" ");
-
-      const params = this.matchMacroCall(macroDef, callString);
+      const params = this.matchMacroCall(macro, callString);
       if (params) {
         matchedMacro = macro;
         resolvedParams = params;
@@ -222,10 +216,22 @@ class Parser {
 
   getMacroSignature(macro) {
     return macro.header
-      .map((fragment) =>
-        typeof fragment === "object" ? `{${fragment.param}}` : fragment,
-      )
+      .map((fragment) => this.addFragmentDelimiters(fragment))
       .join(" ");
+  }
+
+  addFragmentDelimiters(fragment) {
+    if (typeof fragment === "string") {
+      return fragment;
+    }
+
+    if (fragment.type === "string") {
+      return `{${fragment.param}}`;
+    }
+
+    if (fragment.type === "element") {
+      return `<${fragment.param}>`;
+    }
   }
 
   substituteParameters(statements, params) {
@@ -318,29 +324,29 @@ class Parser {
     return result;
   }
 
-  macroToRegex(macroDef) {
-    // Split by parameter tokens like {param}
-    const parts = macroDef.split(/(\{[^}]+\})/g);
-
-    const regexParts = parts.map((part) => {
-      if (part.match(/^\{[^}]+\}$/)) {
-        // Match quoted string for parameter
-        return '"([^"]+)"';
-      } else {
+  macroToRegex(macro) {
+    const regexParts = macro.header.map((part) => {
+      if (typeof part === 'string') {
         // Escape the literal text
         return part
-          .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-          .trim()
-          .replace(/\s+/g, "\\s+");
+            .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+            .trim()
+            .replace(/\s+/g, "\\s+");
+      } else if (part.type === 'element') {
+        // Match identifiers between angle brackets
+        return '<([^>]+)>';
+      } else {
+        // Match quoted string for parameter
+        return '"([^"]+)"';
       }
     });
 
     return new RegExp("^" + regexParts.join("\\s*") + "$");
   }
 
-  matchMacroCall(macroDef, macroCall) {
-    const paramNames = [...macroDef.matchAll(/\{([^}]+)\}/g)].map((m) => m[1]);
-    const regex = this.macroToRegex(macroDef);
+  matchMacroCall(macro, macroCall) {
+    const paramNames = macro.header.filter(f => typeof f === 'object').map(f => f.param);
+    const regex = this.macroToRegex(macro);
     const match = macroCall.match(regex);
     if (!match) return null;
 
