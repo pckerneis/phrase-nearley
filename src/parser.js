@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const ohm = require("ohm-js");
 const { actionsOnElement, actionsWithString } = require("./actions");
+const { assertionsWithString } = require("./assertions");
 
 class Parser {
   constructor() {
@@ -16,6 +17,10 @@ class Parser {
       .replace(
         "{{actionWithStringTypes}}",
         actionsWithString.map((a) => `"${a.action}"`).join(" | "),
+      )
+      .replace(
+        "{{assertionWithStringTypes}}",
+        assertionsWithString.map((a) => `"${a.assertion}"`).join(" | "),
       );
 
     this.grammar = ohm.grammar(grammarContent);

@@ -14,7 +14,8 @@ Phrase {
   actionWithStringType = {{actionWithStringTypes}}
 
   // Assertions
-  assertion = "expect" space+ element space+ "to have text" space+ string
+  assertion = "expect" space+ element space+ assertionWithStringType space+ string
+  assertionWithStringType = {{assertionWithStringTypes}}
 
   element = "<" space* multiIdentifier space* ">"
   multiIdentifier = nonemptyListOf<paramOrIdentifier, space+>

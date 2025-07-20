@@ -1,6 +1,7 @@
 const { actionsOnElement, actionsWithString } = require("./actions");
 const path = require("path");
 const fs = require("fs");
+const { assertionsWithString } = require("./assertions");
 
 const docTemplateFile = path.join(__dirname, "language-doc-template.md");
 let docTemplateContent = fs.readFileSync(docTemplateFile, "utf-8");
@@ -18,6 +19,23 @@ const actionRows = allActions
   .join("\n");
 
 docTemplateContent = docTemplateContent.replace("{{actionRows}}", actionRows);
+
+const allAssertions = [...assertionsWithString];
+
+allAssertions.sort((a, b) => {
+  return a.assertion.localeCompare(b.assertion);
+});
+
+const assertionRows = allAssertions
+  .map((assertion) => {
+    return `| \`${assertion.assertion}\` | ${assertion.description} | \`${assertion.example}\` |`;
+  })
+  .join("\n");
+
+docTemplateContent = docTemplateContent.replace(
+  "{{assertionRows}}",
+  assertionRows,
+);
 
 fs.writeFileSync(
   path.join(__dirname, "..", "language-doc.md"),
